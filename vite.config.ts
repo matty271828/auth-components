@@ -11,7 +11,15 @@ export default defineConfig({
     tailwindcss(),
     dts({ 
       insertTypesEntry: true,
-      rollupTypes: true 
+      rollupTypes: false,
+      include: ['src/**/*'],
+      exclude: [
+        'vite.config.ts',
+        'tsconfig*.json',
+        '**/*.config.*',
+        '**/*.d.ts',
+        'node_modules/**/*'
+      ]
     })
   ],
   build: {
