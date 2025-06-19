@@ -28,6 +28,52 @@ This library requires React 18+ and React DOM 18+ as peer dependencies. Make sur
 npm install react react-dom
 ```
 
+### Using as Git Submodule (Development)
+
+If you want to use this library directly from source during development:
+
+#### 1. Add as a submodule to your project:
+
+```bash
+# In your frontend project directory
+git submodule add <auth-components-repo-url> auth-components
+git submodule update --init --recursive
+```
+
+#### 2. Import components directly from source:
+
+```tsx
+// Import from the submodule source
+import { LoginForm, RegistrationForm, auth } from '../auth-components/src'
+// or
+import { LoginForm, RegistrationForm, auth } from './auth-components/src'
+```
+
+#### 3. Update the submodule when changes are made:
+
+```bash
+# Pull latest changes from the auth-components repo
+git submodule update --remote auth-components
+
+# Or go into the submodule and pull manually
+cd auth-components
+git pull origin main
+cd ..
+git add auth-components
+git commit -m "Update auth-components submodule"
+```
+
+#### 4. Clone a project with submodules:
+
+```bash
+# Clone the main project
+git clone <your-project-url>
+# Initialize and update submodules
+git submodule update --init --recursive
+```
+
+**Note:** When using as a submodule, you'll need to ensure your project can handle TypeScript compilation and that React versions are compatible.
+
 ### For Library Development
 
 ```bash
