@@ -1,13 +1,53 @@
 {
-  "name": "auth-component",
-  "private": true,
+  "name": "auth-components",
   "version": "0.0.0",
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./login": {
+      "import": "./dist/login.mjs",
+      "require": "./dist/login.cjs",
+      "types": "./dist/login.d.ts"
+    },
+    "./register": {
+      "import": "./dist/register.mjs",
+      "require": "./dist/register.cjs",
+      "types": "./dist/register.d.ts"
+    },
+    "./auth": {
+      "import": "./dist/auth.mjs",
+      "require": "./dist/auth.cjs",
+      "types": "./dist/auth.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": false
+    },
+    "react-dom": {
+      "optional": false
+    }
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.2",
@@ -17,8 +57,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.518.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.10"
   },
@@ -33,8 +71,9 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "tw-animate-css": "^1.3.4",
-    "typescript": "~5.8.3",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.30.1",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.4"
   }
 }
