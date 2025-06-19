@@ -13,42 +13,35 @@ A React component library for authentication forms that connects to the centrali
 - 🎯 **Auth Service Integration** - Connects to centralized auth service
 - 🧪 **Mock Mode** - Development mode with mock authentication
 
+## Installation
+
+### For Library Consumers
+
+```bash
+npm install auth-components
+```
+
+**Peer Dependencies:**
+This library requires React 18+ and React DOM 18+ as peer dependencies. Make sure you have them installed:
+
+```bash
+npm install react react-dom
+```
+
+### For Library Development
+
+```bash
+git clone <repository-url>
+cd auth-components
+npm install
+```
+
 ## Quick Start
-
-### Installation
-
-This library is designed to be used within the deployment platform. The components will automatically connect to the auth service running on your domain.
-
-### Development Setup
-
-The components work in two modes:
-
-#### 1. Mock Mode (Default for Development)
-When running locally without an auth service, the components automatically use mock authentication:
-
-```bash
-npm run dev
-```
-
-This will:
-- ✅ Show a "Development Mode" warning
-- ✅ Use mock data for authentication
-- ✅ Simulate network delays
-- ✅ Store mock sessions in localStorage
-- ✅ Allow full UI testing
-
-#### 2. Connected Mode (Production)
-To connect to a real auth service, set the environment variable:
-
-```bash
-# Create .env file
-VITE_AUTH_SERVICE_URL=https://your-domain.com
-```
 
 ### Basic Usage
 
 ```tsx
-import { LoginForm, RegistrationForm, AuthDemo } from './auth-components'
+import { LoginForm, RegistrationForm, AuthDemo } from 'auth-components'
 
 // Use the demo component (recommended for testing)
 function App() {
@@ -77,62 +70,26 @@ function LoginPage() {
 }
 ```
 
-## Components
+### Individual Component Imports
 
-### LoginForm
-
-A complete login form with email and password fields.
+You can also import specific components or utilities:
 
 ```tsx
-import { LoginForm } from './auth-components'
+// Import specific components
+import { LoginForm } from 'auth-components/login'
+import { RegistrationForm } from 'auth-components/register'
 
-<LoginForm 
-  onSuccess={(user) => console.log('Logged in:', user)}
-  onError={(error) => console.error('Login failed:', error)}
-  redirectUrl="/dashboard"
-/>
+// Import auth utilities
+import { auth } from 'auth-components/auth'
+
+// Import UI components
+import { Button, Card, Input } from 'auth-components'
 ```
 
-**Props:**
-- `onSuccess?: (user: User) => void` - Called when login is successful
-- `onError?: (error: string) => void` - Called when login fails
-- `redirectUrl?: string` - URL to redirect to after successful login
-
-### RegistrationForm
-
-A complete registration form with validation.
+### Auth Utilities Usage
 
 ```tsx
-import { RegistrationForm } from './auth-components'
-
-<RegistrationForm 
-  onSuccess={(user) => console.log('Registered:', user)}
-  onError={(error) => console.error('Registration failed:', error)}
-  redirectUrl="/welcome"
-/>
-```
-
-**Props:**
-- `onSuccess?: (user: User) => void` - Called when registration is successful
-- `onError?: (error: string) => void` - Called when registration fails
-- `redirectUrl?: string` - URL to redirect to after successful registration
-
-### AuthDemo
-
-A demo component that switches between login and registration forms.
-
-```tsx
-import { AuthDemo } from './auth-components'
-
-<AuthDemo />
-```
-
-## Auth Utilities
-
-The library also provides auth utilities for manual authentication handling:
-
-```tsx
-import { auth } from './auth-components'
+import { auth } from 'auth-components'
 
 // Check if user is authenticated
 const isLoggedIn = auth.isAuthenticated()
@@ -170,6 +127,77 @@ const isValid = await auth.validateSession()
 // Check if in mock mode
 const isMock = auth.isMockMode()
 ```
+
+## Components
+
+### LoginForm
+
+A complete login form with email and password fields.
+
+```tsx
+import { LoginForm } from 'auth-components'
+
+<LoginForm 
+  onSuccess={(user) => console.log('Logged in:', user)}
+  onError={(error) => console.error('Login failed:', error)}
+  redirectUrl="/dashboard"
+/>
+```
+
+**Props:**
+- `onSuccess?: (user: User) => void` - Called when login is successful
+- `onError?: (error: string) => void` - Called when login fails
+- `redirectUrl?: string` - URL to redirect to after successful login
+
+### RegistrationForm
+
+A complete registration form with validation.
+
+```tsx
+import { RegistrationForm } from 'auth-components'
+
+<RegistrationForm 
+  onSuccess={(user) => console.log('Registered:', user)}
+  onError={(error) => console.error('Registration failed:', error)}
+  redirectUrl="/welcome"
+/>
+```
+
+**Props:**
+- `onSuccess?: (user: User) => void` - Called when registration is successful
+- `onError?: (error: string) => void` - Called when registration fails
+- `redirectUrl?: string` - URL to redirect to after successful registration
+
+### AuthDemo
+
+A demo component that switches between login and registration forms.
+
+```tsx
+import { AuthDemo } from 'auth-components'
+
+<AuthDemo />
+```
+
+## Configuration
+
+### Environment Variables
+
+To connect to a real auth service, set the environment variable:
+
+```bash
+# Create .env file
+VITE_AUTH_SERVICE_URL=https://your-domain.com
+```
+
+### Development Mode
+
+When running locally without an auth service, the components automatically use mock authentication:
+
+- ✅ Show a "Development Mode" warning
+- ✅ Use mock data for authentication
+- ✅ Simulate network delays
+- ✅ Store mock sessions in localStorage
+- ✅ Allow full UI testing
 
 ## Auth Service Integration
 
