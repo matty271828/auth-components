@@ -9,10 +9,9 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "noEmit": true,
+    "noEmit": false,
     "jsx": "react-jsx",
 
     /* Paths */
@@ -22,6 +21,8 @@
         "./src/*"
       ]
     },
+
+    "composite": true,
 
     /* Linting */
     "strict": true,
