@@ -84,7 +84,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
           <CardDescription className="text-center text-sm sm:text-base">Enter your details to create your account</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4 sm:space-y-4 px-4 sm:px-6">
+          <CardContent className="space-y-4 px-4 sm:px-6">
             {error && (
               <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
                 {error}
@@ -168,7 +168,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
               {/* Password strength indicator */}
               {password && (
                 <div className="mt-3 p-3 bg-gray-50 rounded-md border">
-                  <PasswordStrengthIndicator strength={passwordStrength} />
+                  <PasswordStrengthIndicator strength={passwordStrength} compact={true} />
                 </div>
               )}
             </div>
@@ -202,7 +202,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4 px-4 sm:px-6 pb-6 sm:pb-6">
+          <CardFooter className="flex flex-col space-y-4 px-4 sm:px-6 pb-6">
             <Button 
               type="submit" 
               className="w-full h-11 sm:h-10 text-base" 
