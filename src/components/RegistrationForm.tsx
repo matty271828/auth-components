@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { auth } from "@/lib/auth"
 import type { User } from "@/lib/auth"
@@ -71,23 +70,23 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
-          <CardDescription className="text-center">Enter your details to create your account</CardDescription>
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-gray-50">
+      <Card className="w-full max-w-sm sm:max-w-md mx-auto">
+        <CardHeader className="space-y-2 sm:space-y-1 px-4 sm:px-6 pt-6 sm:pt-6">
+          <CardTitle className="text-xl sm:text-2xl font-bold text-center">Create Account</CardTitle>
+          <CardDescription className="text-center text-sm sm:text-base">Enter your details to create your account</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 sm:space-y-4 px-4 sm:px-6">
             {error && (
               <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
                 {error}
               </div>
             )}
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName" className="text-sm sm:text-base">First Name</Label>
                 <Input 
                   id="firstName" 
                   name="firstName" 
@@ -97,10 +96,11 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
                   onChange={(e) => setFirstName(e.target.value)}
                   required 
                   disabled={isLoading}
+                  className="h-11 sm:h-10 text-base"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName" className="text-sm sm:text-base">Last Name</Label>
                 <Input 
                   id="lastName" 
                   name="lastName" 
@@ -110,12 +110,13 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
                   onChange={(e) => setLastName(e.target.value)}
                   required 
                   disabled={isLoading}
+                  className="h-11 sm:h-10 text-base"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
               <Input 
                 id="email" 
                 name="email" 
@@ -125,11 +126,12 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
                 onChange={(e) => setEmail(e.target.value)}
                 required 
                 disabled={isLoading}
+                className="h-11 sm:h-10 text-base"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm sm:text-base">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -141,12 +143,13 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
                   required
                   minLength={8}
                   disabled={isLoading}
+                  className="h-11 sm:h-10 text-base pr-12"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent min-h-0"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLoading}
                 >
@@ -160,7 +163,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-sm sm:text-base">Confirm Password</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
@@ -171,12 +174,13 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   disabled={isLoading}
+                  className="h-11 sm:h-10 text-base pr-12"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent min-h-0"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   disabled={isLoading}
                 >
@@ -185,24 +189,10 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
                 </Button>
               </div>
             </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox id="terms" required disabled={isLoading} />
-              <Label htmlFor="terms" className="text-sm font-normal">
-                I agree to the{" "}
-                <a href="#" className="text-primary hover:underline">
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a href="#" className="text-primary hover:underline">
-                  Privacy Policy
-                </a>
-              </Label>
-            </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+          <CardFooter className="flex flex-col space-y-4 px-4 sm:px-6 pb-6 sm:pb-6">
+            <Button type="submit" className="w-full h-11 sm:h-10 text-base" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
