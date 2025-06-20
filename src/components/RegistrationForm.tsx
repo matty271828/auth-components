@@ -11,7 +11,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { auth } from "@/lib/auth"
 import type { User } from "@/lib/auth"
 import { validatePassword, isPasswordValid } from "@/lib/utils"
-import { PasswordStrengthIndicator } from "@/components/ui/password-strength-indicator"
+import { PasswordStrengthIndicator } from "./ui/password-strength-indicator"
 
 interface RegistrationFormProps {
   onSuccess?: (user: User) => void
