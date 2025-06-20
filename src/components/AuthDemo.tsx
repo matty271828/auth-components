@@ -36,7 +36,7 @@ export default function AuthDemo() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+    <div className="flex items-center justify-center p-4 bg-gray-50 py-8">
       <div className="w-full max-w-md space-y-4">
         {/* Mock Mode Warning */}
         {isMockMode && (
