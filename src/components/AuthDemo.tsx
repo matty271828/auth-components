@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle, XCircle, AlertTriangle } from "lucide-react"
 import LoginForm from "./LoginForm"
 import RegistrationForm from "./RegistrationForm"
@@ -79,53 +78,18 @@ export default function AuthDemo() {
           </Card>
         )}
 
-        {/* Form Toggle */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center">Authentication Demo</CardTitle>
-            <CardDescription className="text-center">
-              {isMockMode 
-                ? "Testing the authentication components with mock data"
-                : "Test the authentication components with the auth service"
-              }
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex space-x-2">
-              <Button
-                variant={isLogin ? "default" : "outline"}
-                onClick={() => setIsLogin(true)}
-                className="flex-1"
-              >
-                Login
-              </Button>
-              <Button
-                variant={!isLogin ? "default" : "outline"}
-                onClick={() => setIsLogin(false)}
-                className="flex-1"
-              >
-                Register
-              </Button>
-            </div>
-            
-            <div className="text-center">
-              <Button variant="link" onClick={handleFormSwitch} className="text-sm">
-                {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Auth Form */}
         {isLogin ? (
           <LoginForm 
             onSuccess={handleSuccess}
             onError={handleError}
+            onSwitchToRegister={handleFormSwitch}
           />
         ) : (
           <RegistrationForm 
             onSuccess={handleSuccess}
             onError={handleError}
+            onSwitchToLogin={handleFormSwitch}
           />
         )}
       </div>

@@ -15,9 +15,10 @@ interface LoginFormProps {
   onSuccess?: (user: User) => void
   onError?: (error: string) => void
   redirectUrl?: string
+  onSwitchToRegister?: () => void
 }
 
-export default function LoginForm({ onSuccess, onError, redirectUrl }: LoginFormProps) {
+export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToRegister }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -127,9 +128,13 @@ export default function LoginForm({ onSuccess, onError, redirectUrl }: LoginForm
             </Button>
             <p className="text-sm text-center text-muted-foreground">
               Don't have an account?{" "}
-              <a href="#" className="text-primary hover:underline font-medium">
+              <button 
+                type="button"
+                onClick={onSwitchToRegister}
+                className="text-primary hover:underline font-medium"
+              >
                 Create account
-              </a>
+              </button>
             </p>
           </CardFooter>
         </form>

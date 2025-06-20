@@ -17,9 +17,10 @@ interface RegistrationFormProps {
   onSuccess?: (user: User) => void
   onError?: (error: string) => void
   redirectUrl?: string
+  onSwitchToLogin?: () => void
 }
 
-export default function RegistrationForm({ onSuccess, onError, redirectUrl }: RegistrationFormProps) {
+export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSwitchToLogin }: RegistrationFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -219,9 +220,13 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
             </Button>
             <p className="text-sm text-center text-muted-foreground">
               Already have an account?{" "}
-              <a href="#" className="text-primary hover:underline font-medium">
+              <button 
+                type="button"
+                onClick={onSwitchToLogin}
+                className="text-primary hover:underline font-medium"
+              >
                 Sign in
-              </a>
+              </button>
             </p>
           </CardFooter>
         </form>
