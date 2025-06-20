@@ -57,88 +57,86 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
   }
 
   return (
-    <div className="flex items-center justify-center p-1 sm:p-6 bg-gray-50 py-2 sm:py-8">
-      <Card className="w-full max-w-sm sm:max-w-md mx-auto">
-        <CardHeader className="space-y-1 px-2 sm:px-6 pt-3 sm:pt-6">
-          <CardTitle className="text-base sm:text-xl lg:text-2xl font-bold text-center">Welcome Back</CardTitle>
-          <CardDescription className="text-center text-xs sm:text-sm lg:text-base">Enter your credentials to access your account</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-2 sm:space-y-4 px-2 sm:px-6">
-            {error && (
-              <div className="p-2 text-xs sm:text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                {error}
-              </div>
-            )}
-            
-            <div className="space-y-1">
-              <Label htmlFor="email" className="text-xs sm:text-sm lg:text-base">Email</Label>
-              <Input 
-                id="email" 
-                name="email" 
-                type="email" 
-                placeholder="john.doe@example.com" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required 
+    <Card className="w-full max-w-sm sm:max-w-md mx-auto border-none shadow-none">
+      <CardHeader className="space-y-1 px-2 sm:px-6 pt-3 sm:pt-6">
+        <CardTitle className="text-base sm:text-xl lg:text-2xl font-bold text-center">Welcome Back</CardTitle>
+        <CardDescription className="text-center text-xs sm:text-sm lg:text-base">Enter your credentials to access your account</CardDescription>
+      </CardHeader>
+      <form onSubmit={handleSubmit}>
+        <CardContent className="space-y-2 sm:space-y-4 px-2 sm:px-6">
+          {error && (
+            <div className="p-2 text-xs sm:text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+              {error}
+            </div>
+          )}
+          
+          <div className="space-y-1">
+            <Label htmlFor="email" className="text-xs sm:text-sm lg:text-base">Email</Label>
+            <Input 
+              id="email" 
+              name="email" 
+              type="email" 
+              placeholder="john.doe@example.com" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required 
+              disabled={isLoading}
+              className="h-9 sm:h-11 text-sm sm:text-base"
+            />
+          </div>
+
+          <div className="space-y-1 mb-2 sm:mb-4">
+            <Label htmlFor="password" className="text-xs sm:text-sm lg:text-base">Password</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
                 disabled={isLoading}
-                className="h-9 sm:h-11 text-sm sm:text-base"
+                className="h-9 sm:h-11 text-sm sm:text-base pr-10 sm:pr-12"
               />
-            </div>
-
-            <div className="space-y-1 mb-2 sm:mb-4">
-              <Label htmlFor="password" className="text-xs sm:text-sm lg:text-base">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={isLoading}
-                  className="h-9 sm:h-11 text-sm sm:text-base pr-10 sm:pr-12"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-2 py-1 sm:px-3 sm:py-2 hover:bg-transparent min-h-0"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLoading}
-                >
-                  {showPassword ? <EyeOff className="h-3 w-3 sm:h-4 sm:w-4" /> : <Eye className="h-3 w-3 sm:h-4 sm:w-4" />}
-                  <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6">
-            <Button type="submit" className="w-full h-9 sm:h-11 text-sm sm:text-base" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-            <p className="text-xs sm:text-sm text-center text-muted-foreground">
-              Don't have an account?{" "}
-              <button 
+              <Button
                 type="button"
-                onClick={onSwitchToRegister}
-                className="text-primary hover:underline font-medium"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-full px-2 py-1 sm:px-3 sm:py-2 hover:bg-transparent min-h-0"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={isLoading}
               >
-                Create account
-              </button>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+                {showPassword ? <EyeOff className="h-3 w-3 sm:h-4 sm:w-4" /> : <Eye className="h-3 w-3 sm:h-4 sm:w-4" />}
+                <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+
+        <CardFooter className="flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6">
+          <Button type="submit" className="w-full h-9 sm:h-11 text-sm sm:text-base" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
+          </Button>
+          <p className="text-xs sm:text-sm text-center text-muted-foreground">
+            Don't have an account?{" "}
+            <button 
+              type="button"
+              onClick={onSwitchToRegister}
+              className="text-primary hover:underline font-medium"
+            >
+              Create account
+            </button>
+          </p>
+        </CardFooter>
+      </form>
+    </Card>
   )
 } 
