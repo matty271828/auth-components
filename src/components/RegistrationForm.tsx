@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { auth } from "@/lib/auth"
 import type { User } from "@/lib/auth"
+import { validatePassword, isPasswordValid } from "@/lib/utils"
+import { PasswordStrengthIndicator } from "@/components/ui/password-strength-indicator"
 
 interface RegistrationFormProps {
   onSuccess?: (user: User) => void
@@ -28,6 +30,11 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
 
+  // Calculate password strength whenever password changes
+  const passwordStrength = useMemo(() => {
+    return validatePassword(password)
+  }, [password])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -36,8 +43,8 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
       return
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long")
+    if (!isPasswordValid(password)) {
+      setError("Password does not meet all requirements")
       return
     }
 
@@ -141,7 +148,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={8}
+                  minLength={12}
                   disabled={isLoading}
                   className="h-11 sm:h-10 text-base pr-12"
                 />
@@ -157,9 +164,13 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
                   <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Password must be at least 8 characters long
-              </p>
+              
+              {/* Password strength indicator */}
+              {password && (
+                <div className="mt-3 p-3 bg-gray-50 rounded-md border">
+                  <PasswordStrengthIndicator strength={passwordStrength} />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -192,7 +203,11 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl }: Re
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4 px-4 sm:px-6 pb-6 sm:pb-6">
-            <Button type="submit" className="w-full h-11 sm:h-10 text-base" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full h-11 sm:h-10 text-base" 
+              disabled={isLoading || !isPasswordValid(password)}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

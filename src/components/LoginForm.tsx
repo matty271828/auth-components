@@ -112,12 +112,6 @@ export default function LoginForm({ onSuccess, onError, redirectUrl }: LoginForm
                 </Button>
               </div>
             </div>
-
-            <div className="flex justify-end">
-              <a href="#" className="text-sm text-primary hover:underline">
-                Forgot password?
-              </a>
-            </div>
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4 px-4 sm:px-6 pb-6 sm:pb-6">

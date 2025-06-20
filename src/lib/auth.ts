@@ -2,6 +2,8 @@
  * Authentication utilities for connecting React components to the auth service
  */
 
+import { isPasswordValid } from './utils';
+
 export interface User {
   id: string;
   email: string;
@@ -172,10 +174,6 @@ class AuthClient {
       if (!loginData.email || !loginData.password) {
         throw new Error('Email and password are required');
       }
-      
-      if (loginData.password.length < 8) {
-        throw new Error('Password must be at least 8 characters long');
-      }
 
       const user = this.generateMockUser({ email: loginData.email });
       const session = this.generateMockSession();
@@ -246,8 +244,8 @@ class AuthClient {
         throw new Error('All fields are required');
       }
       
-      if (signupData.password.length < 8) {
-        throw new Error('Password must be at least 8 characters long');
+      if (!isPasswordValid(signupData.password)) {
+        throw new Error('Password does not meet all requirements');
       }
 
       const user = this.generateMockUser(signupData);
