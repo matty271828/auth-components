@@ -13,9 +13,14 @@ export type {
   SignupData 
 } from './lib/auth'
 
+// Utility functions and types
+export { validatePassword, isPasswordValid, cn } from './lib/utils'
+export type { PasswordStrength, PasswordRequirement } from './lib/utils'
+
 // UI Components
 export { Button } from './components/ui/button'
 export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './components/ui/card'
 export { Checkbox } from './components/ui/checkbox'
 export { Input } from './components/ui/input'
-export { Label } from './components/ui/label' 
+export { Label } from './components/ui/label'
+export { PasswordStrengthIndicator } from './components/ui/password-strength-indicator' 
