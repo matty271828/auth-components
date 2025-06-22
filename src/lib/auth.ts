@@ -502,13 +502,53 @@ class AuthClient {
   }
 
   /**
+   * Check if user opted to stay signed in
+   */
+  isStaySignedInEnabled(): boolean {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('auth_stay_signed_in') === 'true';
+  }
+
+  /**
+   * Get time until session expires
+   */
+  getTimeUntilExpiration(): number {
+    const session = this.getCurrentSession();
+    if (!session) return 0;
+
+    const expiresAt = new Date(session.expiresAt).getTime();
+    const now = Date.now();
+    return Math.max(0, expiresAt - now);
+  }
+
+  /**
+   * Get formatted time until expiration
+   */
+  getFormattedTimeUntilExpiration(): string {
+    const timeMs = this.getTimeUntilExpiration();
+    if (timeMs === 0) return 'Expired';
+
+    const hours = Math.floor(timeMs / (1000 * 60 * 60));
+    const minutes = Math.floor((timeMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m`;
+    } else {
+      return 'Less than 1m';
+    }
+  }
+
+  /**
    * Login user
    */
-  async login(loginData: LoginData): Promise<User> {
+  async login(loginData: LoginData, staySignedIn: boolean = true): Promise<User> {
     console.log('🔧 Auth login called with:', { 
       isDevelopment: this.isDevelopment, 
       baseUrl: this.baseUrl, 
-      shouldUseMock: this.shouldUseMock() 
+      shouldUseMock: this.shouldUseMock(),
+      staySignedIn
     });
 
     if (this.shouldUseMock()) {
@@ -528,6 +568,7 @@ class AuthClient {
       localStorage.setItem('auth_token', session.token);
       localStorage.setItem('auth_user', JSON.stringify(user));
       localStorage.setItem('auth_session', JSON.stringify(session));
+      localStorage.setItem('auth_stay_signed_in', staySignedIn.toString());
       
       // Start session monitoring
       this.startSessionMonitoring();
@@ -555,6 +596,7 @@ class AuthClient {
         localStorage.setItem('auth_token', data.session.token);
         localStorage.setItem('auth_user', JSON.stringify(data.user));
         localStorage.setItem('auth_session', JSON.stringify(data.session));
+        localStorage.setItem('auth_stay_signed_in', staySignedIn.toString());
         
         // Start session monitoring
         this.startSessionMonitoring();
@@ -672,6 +714,7 @@ class AuthClient {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
     localStorage.removeItem('auth_session');
+    localStorage.removeItem('auth_stay_signed_in');
     this.csrfToken = null; // Clear CSRF token on logout
     this.csrfTokenExpiresAt = null; // Clear CSRF token expiration on logout
     

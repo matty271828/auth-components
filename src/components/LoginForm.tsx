@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { auth } from "@/lib/auth"
 import type { User } from "@/lib/auth"
@@ -24,6 +25,7 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
   const [error, setError] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [staySignedIn, setStaySignedIn] = useState(true) // Default to true for better UX
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +39,24 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
     setError("")
 
     try {
-      const user = await auth.login({ email, password })
+      // Update session configuration based on user preference
+      if (staySignedIn) {
+        // Enable persistent sessions with longer refresh intervals
+        auth.updateSessionConfig({
+          refreshThreshold: 10, // Refresh 10 minutes before expiration
+          checkInterval: 5, // Check every 5 minutes
+          maxRefreshAttempts: 5
+        });
+      } else {
+        // Use shorter sessions for temporary login
+        auth.updateSessionConfig({
+          refreshThreshold: 2, // Refresh 2 minutes before expiration
+          checkInterval: 1, // Check every minute
+          maxRefreshAttempts: 2
+        });
+      }
+
+      const user = await auth.login({ email, password }, staySignedIn)
       console.log("Login successful:", user)
       onSuccess?.(user)
       
@@ -112,6 +131,28 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
               </Button>
             </div>
           </div>
+
+          {/* Stay signed in checkbox */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="staySignedIn"
+              checked={staySignedIn}
+              onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
+              disabled={isLoading}
+            />
+            <Label 
+              htmlFor="staySignedIn" 
+              className="text-xs sm:text-sm text-muted-foreground cursor-pointer"
+            >
+              Stay signed in
+            </Label>
+          </div>
+          
+          {staySignedIn && (
+            <p className="text-xs text-muted-foreground">
+              You'll remain signed in until you manually sign out or your session expires.
+            </p>
+          )}
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6">
