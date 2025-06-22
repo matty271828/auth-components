@@ -16,6 +16,7 @@ export interface Session {
   id: string;
   token: string;
   expiresAt: string;
+  refreshToken?: string; // Add refresh token support
 }
 
 export interface AuthResponse {
@@ -38,11 +39,29 @@ export interface SignupData {
   lastName: string;
 }
 
+// Session management configuration
+interface SessionConfig {
+  refreshThreshold: number; // Minutes before expiration to refresh token
+  checkInterval: number; // How often to check session status (minutes)
+  maxRefreshAttempts: number; // Maximum refresh attempts before logout
+}
+
 class AuthClient {
   private baseUrl: string;
   private csrfToken: string | null = null;
   private csrfTokenExpiresAt: number | null = null;
   private isDevelopment: boolean;
+  private sessionCheckInterval: NodeJS.Timeout | null = null;
+  private refreshAttempts: number = 0;
+  private isRefreshing: boolean = false;
+  private refreshPromise: Promise<boolean> | null = null;
+  
+  // Session management configuration
+  private sessionConfig: SessionConfig = {
+    refreshThreshold: 5, // Refresh 5 minutes before expiration
+    checkInterval: 1, // Check every minute
+    maxRefreshAttempts: 3
+  };
 
   constructor(baseUrl?: string) {
     // In development, allow overriding the auth service URL
@@ -57,6 +76,226 @@ class AuthClient {
     }
     
     this.isDevelopment = import.meta.env.DEV;
+    
+    // Initialize session management
+    this.initializeSessionManagement();
+  }
+
+  /**
+   * Initialize session management and start monitoring
+   */
+  private initializeSessionManagement(): void {
+    if (typeof window === 'undefined') return;
+
+    // Start session monitoring if user is authenticated
+    if (this.isAuthenticated()) {
+      this.startSessionMonitoring();
+    }
+
+    // Listen for storage changes (other tabs logging in/out)
+    window.addEventListener('storage', this.handleStorageChange.bind(this));
+    
+    // Listen for page visibility changes to refresh session when tab becomes active
+    document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+  }
+
+  /**
+   * Handle storage changes from other tabs
+   */
+  private handleStorageChange(event: StorageEvent): void {
+    if (event.key === 'auth_token') {
+      if (event.newValue) {
+        // Token was added/updated in another tab
+        this.startSessionMonitoring();
+      } else {
+        // Token was removed in another tab
+        this.stopSessionMonitoring();
+      }
+    }
+  }
+
+  /**
+   * Handle page visibility changes
+   */
+  private handleVisibilityChange(): void {
+    if (!document.hidden && this.isAuthenticated()) {
+      // Page became visible, check if session needs refresh
+      this.checkAndRefreshSession();
+    }
+  }
+
+  /**
+   * Start monitoring session status
+   */
+  private startSessionMonitoring(): void {
+    if (this.sessionCheckInterval) {
+      clearInterval(this.sessionCheckInterval);
+    }
+
+    this.sessionCheckInterval = setInterval(() => {
+      this.checkAndRefreshSession();
+    }, this.sessionConfig.checkInterval * 60 * 1000);
+
+    // Also check immediately
+    this.checkAndRefreshSession();
+  }
+
+  /**
+   * Stop monitoring session status
+   */
+  private stopSessionMonitoring(): void {
+    if (this.sessionCheckInterval) {
+      clearInterval(this.sessionCheckInterval);
+      this.sessionCheckInterval = null;
+    }
+  }
+
+  /**
+   * Check if session needs refresh and handle accordingly
+   */
+  private async checkAndRefreshSession(): Promise<void> {
+    if (!this.isAuthenticated()) {
+      this.stopSessionMonitoring();
+      return;
+    }
+
+    const session = this.getCurrentSession();
+    if (!session) {
+      this.logout();
+      return;
+    }
+
+    const expiresAt = new Date(session.expiresAt).getTime();
+    const now = Date.now();
+    const timeUntilExpiry = expiresAt - now;
+    const refreshThresholdMs = this.sessionConfig.refreshThreshold * 60 * 1000;
+
+    if (timeUntilExpiry <= 0) {
+      // Session has expired
+      console.log('Session has expired, logging out');
+      this.logout();
+      this.emitSessionExpired();
+    } else if (timeUntilExpiry <= refreshThresholdMs) {
+      // Session is about to expire, refresh it
+      console.log('Session expiring soon, refreshing token');
+      await this.refreshSession();
+    }
+  }
+
+  /**
+   * Refresh the current session
+   */
+  private async refreshSession(): Promise<boolean> {
+    // Prevent multiple simultaneous refresh attempts
+    if (this.isRefreshing) {
+      return this.refreshPromise!;
+    }
+
+    if (this.refreshAttempts >= this.sessionConfig.maxRefreshAttempts) {
+      console.log('Max refresh attempts reached, logging out');
+      this.logout();
+      this.emitSessionExpired();
+      return false;
+    }
+
+    this.isRefreshing = true;
+    this.refreshAttempts++;
+
+    this.refreshPromise = this.performRefresh();
+    
+    try {
+      const success = await this.refreshPromise;
+      if (success) {
+        this.refreshAttempts = 0; // Reset attempts on successful refresh
+      }
+      return success;
+    } finally {
+      this.isRefreshing = false;
+      this.refreshPromise = null;
+    }
+  }
+
+  /**
+   * Perform the actual refresh operation
+   */
+  private async performRefresh(): Promise<boolean> {
+    const session = this.getCurrentSession();
+    if (!session?.refreshToken) {
+      console.log('No refresh token available');
+      return false;
+    }
+
+    if (this.shouldUseMock()) {
+      // Mock refresh - generate new session
+      const newSession = this.generateMockSession();
+      localStorage.setItem('auth_token', newSession.token);
+      localStorage.setItem('auth_session', JSON.stringify(newSession));
+      console.log('Mock session refreshed');
+      return true;
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refreshToken: session.refreshToken,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Refresh failed: ${response.status}`);
+      }
+
+      const data: AuthResponse = await response.json();
+      
+      if (data.success && data.session) {
+        // Update stored session
+        localStorage.setItem('auth_token', data.session.token);
+        localStorage.setItem('auth_session', JSON.stringify(data.session));
+        
+        // Update user if provided
+        if (data.user) {
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
+        }
+        
+        console.log('Session refreshed successfully');
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Session refresh failed:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get current session from localStorage
+   */
+  getCurrentSession(): Session | null {
+    if (typeof window === 'undefined') return null;
+    
+    const sessionStr = localStorage.getItem('auth_session');
+    if (!sessionStr) return null;
+    
+    try {
+      return JSON.parse(sessionStr) as Session;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Emit session expired event
+   */
+  private emitSessionExpired(): void {
+    // Dispatch custom event for components to listen to
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('sessionExpired'));
+    }
   }
 
   /**
@@ -107,6 +346,7 @@ class AuthClient {
       id: `session-${Date.now()}`,
       token: `mock-token-${Date.now()}`,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+      refreshToken: `mock-refresh-${Date.now()}`,
     };
   }
 
@@ -240,6 +480,28 @@ class AuthClient {
   }
 
   /**
+   * Get session expiration time
+   */
+  getSessionExpiration(): Date | null {
+    const session = this.getCurrentSession();
+    return session ? new Date(session.expiresAt) : null;
+  }
+
+  /**
+   * Check if session is about to expire
+   */
+  isSessionExpiringSoon(): boolean {
+    const session = this.getCurrentSession();
+    if (!session) return false;
+
+    const expiresAt = new Date(session.expiresAt).getTime();
+    const now = Date.now();
+    const refreshThresholdMs = this.sessionConfig.refreshThreshold * 60 * 1000;
+
+    return (expiresAt - now) <= refreshThresholdMs;
+  }
+
+  /**
    * Login user
    */
   async login(loginData: LoginData): Promise<User> {
@@ -265,6 +527,10 @@ class AuthClient {
       // Store in localStorage
       localStorage.setItem('auth_token', session.token);
       localStorage.setItem('auth_user', JSON.stringify(user));
+      localStorage.setItem('auth_session', JSON.stringify(session));
+      
+      // Start session monitoring
+      this.startSessionMonitoring();
       
       console.log('🔧 Mock login successful:', user);
       return user;
@@ -288,6 +554,11 @@ class AuthClient {
         // Store session token in localStorage
         localStorage.setItem('auth_token', data.session.token);
         localStorage.setItem('auth_user', JSON.stringify(data.user));
+        localStorage.setItem('auth_session', JSON.stringify(data.session));
+        
+        // Start session monitoring
+        this.startSessionMonitoring();
+        
         return data.user;
       }
 
@@ -328,6 +599,10 @@ class AuthClient {
       // Store in localStorage
       localStorage.setItem('auth_token', session.token);
       localStorage.setItem('auth_user', JSON.stringify(user));
+      localStorage.setItem('auth_session', JSON.stringify(session));
+      
+      // Start session monitoring
+      this.startSessionMonitoring();
       
       console.log('🔧 Mock registration successful:', user);
       return user;
@@ -351,6 +626,11 @@ class AuthClient {
         // Store session token in localStorage
         localStorage.setItem('auth_token', data.session.token);
         localStorage.setItem('auth_user', JSON.stringify(data.user));
+        localStorage.setItem('auth_session', JSON.stringify(data.session));
+        
+        // Start session monitoring
+        this.startSessionMonitoring();
+        
         return data.user;
       }
 
@@ -385,11 +665,18 @@ class AuthClient {
       }
     }
 
+    // Stop session monitoring
+    this.stopSessionMonitoring();
+    
     // Clear local storage regardless of API call success
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_session');
     this.csrfToken = null; // Clear CSRF token on logout
     this.csrfTokenExpiresAt = null; // Clear CSRF token expiration on logout
+    
+    // Reset refresh attempts
+    this.refreshAttempts = 0;
   }
 
   /**
@@ -491,6 +778,37 @@ class AuthClient {
    */
   getCSRFTokenExpiration(): Date | null {
     return this.csrfTokenExpiresAt ? new Date(this.csrfTokenExpiresAt) : null;
+  }
+
+  /**
+   * Update session configuration
+   */
+  updateSessionConfig(config: Partial<SessionConfig>): void {
+    this.sessionConfig = { ...this.sessionConfig, ...config };
+    
+    // Restart monitoring with new config if currently monitoring
+    if (this.sessionCheckInterval) {
+      this.startSessionMonitoring();
+    }
+  }
+
+  /**
+   * Get current session configuration
+   */
+  getSessionConfig(): SessionConfig {
+    return { ...this.sessionConfig };
+  }
+
+  /**
+   * Cleanup method to be called when the app unmounts
+   */
+  cleanup(): void {
+    this.stopSessionMonitoring();
+    
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('storage', this.handleStorageChange.bind(this));
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+    }
   }
 }
 
