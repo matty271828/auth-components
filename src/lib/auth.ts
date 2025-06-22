@@ -41,6 +41,7 @@ export interface SignupData {
 class AuthClient {
   private baseUrl: string;
   private csrfToken: string | null = null;
+  private csrfTokenExpiresAt: number | null = null;
   private isDevelopment: boolean;
 
   constructor(baseUrl?: string) {
@@ -73,6 +74,19 @@ class AuthClient {
   }
 
   /**
+   * Check if current CSRF token is valid and not expired
+   */
+  private isCSRFTokenValid(): boolean {
+    if (!this.csrfToken || !this.csrfTokenExpiresAt) {
+      return false;
+    }
+    
+    // Add 5 minute buffer before expiration
+    const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+    return Date.now() < (this.csrfTokenExpiresAt - bufferTime);
+  }
+
+  /**
    * Generate mock user data
    */
   private generateMockUser(data: { email: string; firstName?: string; lastName?: string }): User {
@@ -102,6 +116,7 @@ class AuthClient {
   async getCSRFToken(): Promise<string> {
     if (this.shouldUseMock()) {
       this.csrfToken = `mock-csrf-${Date.now()}`;
+      this.csrfTokenExpiresAt = Date.now() + 60 * 60 * 1000; // 1 hour for mock tokens
       return this.csrfToken;
     }
 
@@ -119,13 +134,82 @@ class AuthClient {
 
       const data = await response.json();
       this.csrfToken = data.token;
+      
+      // Set expiration time (default to 1 hour if not provided)
+      this.csrfTokenExpiresAt = data.expiresAt 
+        ? new Date(data.expiresAt).getTime()
+        : Date.now() + 60 * 60 * 1000; // 1 hour default
+      
       return data.token;
     } catch (error) {
       console.error('Error getting CSRF token:', error);
       if (this.isDevelopment) {
         console.warn('Using mock CSRF token for development');
         this.csrfToken = `mock-csrf-${Date.now()}`;
+        this.csrfTokenExpiresAt = Date.now() + 60 * 60 * 1000; // 1 hour for mock tokens
         return this.csrfToken;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Ensure we have a valid CSRF token, refreshing if necessary
+   */
+  private async ensureValidCSRFToken(): Promise<string> {
+    if (!this.isCSRFTokenValid()) {
+      console.log('CSRF token expired or invalid, refreshing...');
+      await this.getCSRFToken();
+    }
+    return this.csrfToken!;
+  }
+
+  /**
+   * Make an authenticated request with CSRF token refresh retry logic
+   */
+  private async makeAuthenticatedRequest<T>(
+    url: string, 
+    options: RequestInit, 
+    retryCount: number = 0
+  ): Promise<T> {
+    const maxRetries = 1; // Only retry once to avoid infinite loops
+    
+    try {
+      // Ensure we have a valid CSRF token
+      const csrfToken = await this.ensureValidCSRFToken();
+      
+      // Add CSRF token to request body if it's a POST/PUT/PATCH request
+      if (options.body && typeof options.body === 'string') {
+        const bodyData = JSON.parse(options.body);
+        bodyData.csrfToken = csrfToken;
+        options.body = JSON.stringify(bodyData);
+      }
+
+      const response = await fetch(url, options);
+      
+      // If we get a 401/403, it might be due to expired CSRF token
+      if ((response.status === 401 || response.status === 403) && retryCount < maxRetries) {
+        console.log(`Request failed with ${response.status}, refreshing CSRF token and retrying...`);
+        
+        // Clear current token and get a fresh one
+        this.csrfToken = null;
+        this.csrfTokenExpiresAt = null;
+        
+        // Retry the request
+        return this.makeAuthenticatedRequest(url, options, retryCount + 1);
+      }
+      
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      if (retryCount < maxRetries) {
+        console.log('Request failed, refreshing CSRF token and retrying...');
+        this.csrfToken = null;
+        this.csrfTokenExpiresAt = null;
+        return this.makeAuthenticatedRequest(url, options, retryCount + 1);
       }
       throw error;
     }
@@ -187,28 +271,18 @@ class AuthClient {
     }
 
     console.log('🔧 Using real auth service login');
-    // Get CSRF token if not already available
-    if (!this.csrfToken) {
-      await this.getCSRFToken();
-    }
 
     try {
-      const response = await fetch(`${this.baseUrl}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...loginData,
-          csrfToken: this.csrfToken,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Login failed: ${response.status} ${response.statusText}`);
-      }
-
-      const data: AuthResponse = await response.json();
+      const data: AuthResponse = await this.makeAuthenticatedRequest<AuthResponse>(
+        `${this.baseUrl}/auth/login`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(loginData),
+        }
+      );
 
       if (data.success && data.session && data.user) {
         // Store session token in localStorage
@@ -260,28 +334,18 @@ class AuthClient {
     }
 
     console.log('🔧 Using real auth service signup');
-    // Get CSRF token if not already available
-    if (!this.csrfToken) {
-      await this.getCSRFToken();
-    }
 
     try {
-      const response = await fetch(`${this.baseUrl}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...signupData,
-          csrfToken: this.csrfToken,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Signup failed: ${response.status} ${response.statusText}`);
-      }
-
-      const data: AuthResponse = await response.json();
+      const data: AuthResponse = await this.makeAuthenticatedRequest<AuthResponse>(
+        `${this.baseUrl}/auth/signup`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(signupData),
+        }
+      );
 
       if (data.success && data.session && data.user) {
         // Store session token in localStorage
@@ -325,6 +389,7 @@ class AuthClient {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
     this.csrfToken = null; // Clear CSRF token on logout
+    this.csrfTokenExpiresAt = null; // Clear CSRF token expiration on logout
   }
 
   /**
@@ -403,6 +468,29 @@ class AuthClient {
    */
   isMockMode(): boolean {
     return this.shouldUseMock();
+  }
+
+  /**
+   * Manually refresh CSRF token
+   */
+  async refreshCSRFToken(): Promise<string> {
+    this.csrfToken = null;
+    this.csrfTokenExpiresAt = null;
+    return await this.getCSRFToken();
+  }
+
+  /**
+   * Check if current CSRF token is valid (public method)
+   */
+  isCSRFTokenValidPublic(): boolean {
+    return this.isCSRFTokenValid();
+  }
+
+  /**
+   * Get CSRF token expiration time (for debugging)
+   */
+  getCSRFTokenExpiration(): Date | null {
+    return this.csrfTokenExpiresAt ? new Date(this.csrfTokenExpiresAt) : null;
   }
 }
 
