@@ -81,7 +81,7 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
               onChange={(e) => setEmail(e.target.value)}
               required 
               disabled={isLoading}
-              className="h-9 sm:h-11 text-sm sm:text-base"
+              className="h-9 sm:h-11 text-base sm:text-base"
             />
           </div>
 
@@ -97,7 +97,7 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                className="h-9 sm:h-11 text-sm sm:text-base pr-10 sm:pr-12"
+                className="h-9 sm:h-11 text-base sm:text-base pr-10 sm:pr-12"
               />
               <Button
                 type="button"

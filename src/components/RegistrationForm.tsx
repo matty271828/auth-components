@@ -104,7 +104,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
                 onChange={(e) => setFirstName(e.target.value)}
                 required 
                 disabled={isLoading}
-                className="h-9 sm:h-11 text-sm sm:text-base"
+                className="h-9 sm:h-11 text-base sm:text-base"
               />
             </div>
             <div className="space-y-1">
@@ -118,7 +118,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
                 onChange={(e) => setLastName(e.target.value)}
                 required 
                 disabled={isLoading}
-                className="h-9 sm:h-11 text-sm sm:text-base"
+                className="h-9 sm:h-11 text-base sm:text-base"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
               onChange={(e) => setEmail(e.target.value)}
               required 
               disabled={isLoading}
-              className="h-9 sm:h-11 text-sm sm:text-base"
+              className="h-9 sm:h-11 text-base sm:text-base"
             />
           </div>
 
@@ -151,7 +151,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
                 required
                 minLength={12}
                 disabled={isLoading}
-                className="h-9 sm:h-11 text-sm sm:text-base pr-10 sm:pr-12"
+                className="h-9 sm:h-11 text-base sm:text-base pr-10 sm:pr-12"
               />
               <Button
                 type="button"
@@ -186,7 +186,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                className="h-9 sm:h-11 text-sm sm:text-base pr-10 sm:pr-12"
+                className="h-9 sm:h-11 text-base sm:text-base pr-10 sm:pr-12"
               />
               <Button
                 type="button"
