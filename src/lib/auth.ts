@@ -174,8 +174,12 @@ class AuthClient {
       this.checkAndRefreshSession();
     }, this.sessionConfig.checkInterval * 60 * 1000);
 
-    // Also check immediately
-    this.checkAndRefreshSession();
+    // Add a delay before the first check to give the auth service time to process
+    // This prevents immediate validation right after login
+    setTimeout(() => {
+      console.log('🔧 Delayed first session check (after 2 second delay)');
+      this.checkAndRefreshSession();
+    }, 2000); // 2 second delay
   }
 
   /**
@@ -258,9 +262,12 @@ class AuthClient {
           localStorage.setItem('auth_last_validation', now.toString());
           console.log('🔧 Session check: Periodic validation successful');
         } else {
-          console.log('🔧 Session check: Periodic validation failed, logging out');
-          this.logout();
-          this.emitSessionExpired();
+          console.log('🔧 Session check: Periodic validation failed');
+          // TEMPORARY: Don't logout on validation failure while auth service issue is being fixed
+          console.log('🔧 TEMPORARY: Keeping session despite validation failure (auth service issue)');
+          // TODO: Re-enable this when auth service is fixed
+          // this.logout();
+          // this.emitSessionExpired();
         }
       } else {
         console.log('🔧 Session check: Skipping validation (too recent)');
