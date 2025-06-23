@@ -68,8 +68,8 @@ class AuthClient {
     if (baseUrl) {
       this.baseUrl = baseUrl;
     } else if (typeof window !== 'undefined') {
-      // Use current domain with /auth appended
-      this.baseUrl = `${window.location.origin}/auth`;
+      // Use current domain (auth service is already running at /auth)
+      this.baseUrl = window.location.origin;
     } else {
       this.baseUrl = '';
     }
