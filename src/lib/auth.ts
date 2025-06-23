@@ -126,12 +126,22 @@ class AuthClient {
    * Handle storage changes from other tabs
    */
   private handleStorageChange(event: StorageEvent): void {
+    console.log('🔧 Storage event detected:', {
+      key: event.key,
+      oldValue: event.oldValue ? 'present' : 'null',
+      newValue: event.newValue ? 'present' : 'null',
+      url: event.url,
+      timestamp: new Date().toISOString()
+    });
+    
     if (event.key === 'auth_token') {
       if (event.newValue) {
         // Token was added/updated in another tab
+        console.log('🔧 Token added/updated in another tab');
         this.startSessionMonitoring();
       } else {
         // Token was removed in another tab
+        console.log('🔧 Token removed in another tab - stopping monitoring');
         this.stopSessionMonitoring();
       }
     }
@@ -151,6 +161,11 @@ class AuthClient {
    * Start monitoring session status
    */
   private startSessionMonitoring(): void {
+    console.log('🔧 Starting session monitoring:', {
+      timestamp: new Date().toISOString(),
+      hadExistingInterval: !!this.sessionCheckInterval
+    });
+    
     if (this.sessionCheckInterval) {
       clearInterval(this.sessionCheckInterval);
     }
@@ -167,6 +182,11 @@ class AuthClient {
    * Stop monitoring session status
    */
   private stopSessionMonitoring(): void {
+    console.log('🔧 Stopping session monitoring:', {
+      timestamp: new Date().toISOString(),
+      hadInterval: !!this.sessionCheckInterval
+    });
+    
     if (this.sessionCheckInterval) {
       clearInterval(this.sessionCheckInterval);
       this.sessionCheckInterval = null;
@@ -177,14 +197,20 @@ class AuthClient {
    * Check if session needs refresh and handle accordingly
    */
   private async checkAndRefreshSession(): Promise<void> {
+    console.log('🔧 Session check started:', {
+      timestamp: new Date().toISOString(),
+      isAuthenticated: this.isAuthenticated()
+    });
+    
     if (!this.isAuthenticated()) {
+      console.log('🔧 Session check: User not authenticated, stopping monitoring');
       this.stopSessionMonitoring();
       return;
     }
 
     const session = this.getCurrentSession();
     if (!session) {
-      console.log('No session found, logging out');
+      console.log('🔧 Session check: No session found, logging out');
       this.logout();
       return;
     }
@@ -194,17 +220,27 @@ class AuthClient {
     const timeUntilExpiry = expiresAt - now;
     const refreshThresholdMs = this.sessionConfig.refreshThreshold * 60 * 1000;
 
+    console.log('🔧 Session check details:', {
+      sessionId: session.id,
+      expiresAt: session.expiresAt,
+      currentTime: new Date().toISOString(),
+      timeUntilExpiry: Math.round(timeUntilExpiry / 1000 / 60), // minutes
+      refreshThreshold: this.sessionConfig.refreshThreshold, // minutes
+      shouldRefresh: timeUntilExpiry <= refreshThresholdMs,
+      isExpired: timeUntilExpiry <= 0
+    });
+
     if (timeUntilExpiry <= 0) {
       // Session has expired
-      console.log('Session has expired, logging out');
+      console.log('🔧 Session check: Session has expired, logging out');
       this.logout();
       this.emitSessionExpired();
     } else if (timeUntilExpiry <= refreshThresholdMs) {
       // Session is about to expire, refresh it
-      console.log(`Session expiring in ${Math.round(timeUntilExpiry / 1000 / 60)} minutes, refreshing token`);
+      console.log(`🔧 Session check: Session expiring in ${Math.round(timeUntilExpiry / 1000 / 60)} minutes, refreshing token`);
       const refreshSuccess = await this.refreshSession();
       if (!refreshSuccess) {
-        console.log('Session refresh failed, logging out');
+        console.log('🔧 Session check: Session refresh failed, logging out');
         this.logout();
         this.emitSessionExpired();
       }
@@ -216,15 +252,18 @@ class AuthClient {
       const validationInterval = 5 * 60 * 1000; // 5 minutes
       
       if (!lastValidation || (now - parseInt(lastValidation)) > validationInterval) {
-        console.log('Performing periodic session validation');
+        console.log('🔧 Session check: Performing periodic session validation');
         const isValid = await this.validateSession();
         if (isValid) {
           localStorage.setItem('auth_last_validation', now.toString());
+          console.log('🔧 Session check: Periodic validation successful');
         } else {
-          console.log('Periodic validation failed, logging out');
+          console.log('🔧 Session check: Periodic validation failed, logging out');
           this.logout();
           this.emitSessionExpired();
         }
+      } else {
+        console.log('🔧 Session check: Skipping validation (too recent)');
       }
     }
   }
@@ -504,7 +543,15 @@ class AuthClient {
    */
   isAuthenticated(): boolean {
     if (typeof window === 'undefined') return false;
-    return !!localStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
+    console.log('🔧 isAuthenticated check:', {
+      hasToken: !!token,
+      tokenLength: token?.length,
+      tokenPrefix: token?.substring(0, 20) + '...',
+      timestamp: new Date().toISOString(),
+      stack: new Error().stack?.split('\n').slice(1, 4).join(' | ') // Show call stack
+    });
+    return !!token;
   }
 
   /**
@@ -624,6 +671,8 @@ class AuthClient {
     console.log('🔧 Using real auth service login');
 
     try {
+      console.log('🔧 Making login request to:', `${this.baseUrl}/auth/login`);
+      
       const data: AuthResponse = await this.makeAuthenticatedRequest<AuthResponse>(
         `${this.baseUrl}/auth/login`,
         {
@@ -635,6 +684,16 @@ class AuthClient {
         }
       );
 
+      console.log('🔧 Login server response:', {
+        success: data.success,
+        hasSession: !!data.session,
+        hasUser: !!data.user,
+        sessionId: data.session?.id,
+        sessionTokenLength: data.session?.token?.length,
+        sessionExpiresAt: data.session?.expiresAt,
+        error: data.error
+      });
+
       if (data.success && data.session && data.user) {
         // Store session token in localStorage
         console.log('🔧 Login - storing token:', {
@@ -645,6 +704,9 @@ class AuthClient {
           expiresAt: data.session.expiresAt,
           hasRefreshToken: !!data.session.refreshToken
         });
+        
+        // Log the FULL token for debugging
+        console.log('🔧 Login - FULL TOKEN RECEIVED:', data.session.token);
         
         localStorage.setItem('auth_token', data.session.token);
         localStorage.setItem('auth_user', JSON.stringify(data.user));
@@ -659,6 +721,9 @@ class AuthClient {
           tokenLength: storedToken?.length,
           sessionStored: !!storedSession
         });
+        
+        // Log the FULL stored token for comparison
+        console.log('🔧 Login - FULL TOKEN STORED:', storedToken);
         
         // Start session monitoring
         this.startSessionMonitoring();
@@ -752,6 +817,13 @@ class AuthClient {
     if (typeof window === 'undefined') return;
 
     const token = localStorage.getItem('auth_token');
+    console.log('🔧 Logout called:', {
+      hadToken: !!token,
+      tokenLength: token?.length,
+      tokenPrefix: token?.substring(0, 20) + '...',
+      timestamp: new Date().toISOString(),
+      stack: new Error().stack?.split('\n').slice(1, 4).join(' | ') // Show call stack
+    });
     
     if (this.shouldUseMock()) {
       console.log('🔧 Mock logout successful');
@@ -783,6 +855,8 @@ class AuthClient {
     
     // Reset refresh attempts
     this.refreshAttempts = 0;
+    
+    console.log('🔧 Logout completed - all tokens cleared');
   }
 
   /**
@@ -813,6 +887,9 @@ class AuthClient {
         isExpired: session ? new Date(session.expiresAt) < new Date() : null
       });
       
+      // Log the FULL token being sent for debugging
+      console.log('🔧 Session validation - FULL TOKEN BEING SENT:', token);
+      
       const response = await fetch(`${this.baseUrl}/auth/session`, {
         method: 'GET',
         headers: {
@@ -839,9 +916,15 @@ class AuthClient {
         }
         
         console.warn(`Session validation failed with status: ${response.status}`);
-        // Clear invalid session
-        this.logout();
-        return false;
+        
+        // TEMPORARY WORKAROUND: Don't logout on validation failure
+        // This prevents automatic logout while auth service issue is being fixed
+        console.warn('🔧 TEMPORARY: Keeping session despite validation failure (auth service issue)');
+        return false; // Return false but don't logout
+        
+        // TODO: Re-enable this when auth service is fixed
+        // this.logout();
+        // return false;
       }
 
       const data: AuthResponse = await response.json();
@@ -1052,6 +1135,84 @@ class AuthClient {
     if (typeof window !== 'undefined') {
       window.removeEventListener('storage', this.handleStorageChange.bind(this));
       document.removeEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+    }
+  }
+
+  /**
+   * Test auth service connectivity and get detailed error info
+   */
+  async testAuthServiceDetailed(): Promise<{ 
+    reachable: boolean; 
+    error?: string; 
+    details?: any;
+    sessionEndpoint?: any;
+  }> {
+    if (this.shouldUseMock()) {
+      return { reachable: true, details: { mode: 'mock' } };
+    }
+
+    try {
+      console.log('🔧 Testing auth service connectivity...');
+      
+      // Test health endpoint
+      const healthResponse = await fetch(`${this.baseUrl}/auth/health`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('🔧 Health check response:', {
+        status: healthResponse.status,
+        ok: healthResponse.ok
+      });
+
+      let healthData = null;
+      if (healthResponse.ok) {
+        try {
+          healthData = await healthResponse.json();
+        } catch (e) {
+          healthData = 'Non-JSON response';
+        }
+      }
+
+      // Test session endpoint with a dummy token to see the error format
+      const dummyToken = 'dummy-token-for-testing';
+      const sessionResponse = await fetch(`${this.baseUrl}/auth/session`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${dummyToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      let sessionError = null;
+      if (!sessionResponse.ok) {
+        try {
+          sessionError = await sessionResponse.text();
+        } catch (e) {
+          sessionError = 'Could not read error response';
+        }
+      }
+
+      return { 
+        reachable: healthResponse.ok,
+        details: { 
+          health: healthData,
+          healthStatus: healthResponse.status
+        },
+        sessionEndpoint: {
+          status: sessionResponse.status,
+          error: sessionError
+        }
+      };
+    } catch (error) {
+      console.error('🔧 Auth service connectivity test failed:', error);
+      return { 
+        reachable: false, 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        details: { error }
+      };
     }
   }
 }

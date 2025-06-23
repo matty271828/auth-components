@@ -31,6 +31,12 @@ export interface UseAuthReturn {
   
   // Debug methods
   debugValidateSession: () => Promise<{ isValid: boolean; error?: string; details?: any }>;
+  testAuthServiceDetailed: () => Promise<{ 
+    reachable: boolean; 
+    error?: string; 
+    details?: any;
+    sessionEndpoint?: any;
+  }>;
   
   // Loading states
   isLoading: boolean;
@@ -219,6 +225,29 @@ export function useAuth(): UseAuthReturn {
     }
   }, [updateAuthState]);
 
+  // Test method
+  const testAuthServiceDetailed = useCallback(async (): Promise<{ 
+    reachable: boolean; 
+    error?: string; 
+    details?: any;
+    sessionEndpoint?: any;
+  }> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await auth.testAuthServiceDetailed();
+      updateAuthState();
+      return result;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Session test validation failed';
+      setError(errorMessage);
+      return { reachable: false, error: errorMessage };
+    } finally {
+      setIsLoading(false);
+    }
+  }, [updateAuthState]);
+
   return {
     isAuthenticated,
     user,
@@ -232,6 +261,7 @@ export function useAuth(): UseAuthReturn {
     updateSessionConfig,
     getSessionConfig,
     debugValidateSession,
+    testAuthServiceDetailed,
     isLoading,
     error,
   };
