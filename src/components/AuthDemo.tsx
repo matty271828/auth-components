@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, XCircle, AlertTriangle, Clock, Shield, ShieldOff, LogOut, Bug } from "lucide-react"
+import { CheckCircle, XCircle, AlertTriangle, Clock, Shield, ShieldOff, LogOut } from "lucide-react"
 import LoginForm from "./LoginForm"
 import RegistrationForm from "./RegistrationForm"
 import { auth } from "@/lib/auth"
@@ -17,9 +17,8 @@ export default function AuthDemo() {
   const [isMockMode, setIsMockMode] = useState(false)
   const [timeUntilExpiration, setTimeUntilExpiration] = useState<string>("")
   const [isSessionExpiringSoon, setIsSessionExpiringSoon] = useState(false)
-  const [debugInfo, setDebugInfo] = useState<string>("")
 
-  const { user, logout, isLoading, debugValidateSession } = useAuth()
+  const { user, logout, isLoading } = useAuth()
 
   useEffect(() => {
     // Check if we're in mock mode
@@ -64,16 +63,6 @@ export default function AuthDemo() {
       setErrorMessage("")
     } catch (error) {
       setErrorMessage("Logout failed")
-    }
-  }
-
-  const handleDebugSession = async () => {
-    try {
-      setDebugInfo("Running session validation...")
-      const result = await debugValidateSession()
-      setDebugInfo(JSON.stringify(result, null, 2))
-    } catch (error) {
-      setDebugInfo(`Debug error: ${error}`)
     }
   }
 
@@ -176,25 +165,6 @@ export default function AuthDemo() {
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
                 </Button>
-
-                {/* Debug Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDebugSession}
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  <Bug className="h-4 w-4 mr-2" />
-                  Debug Session
-                </Button>
-
-                {/* Debug Info */}
-                {debugInfo && (
-                  <div className="mt-4 p-3 bg-gray-100 rounded text-xs font-mono overflow-auto max-h-32">
-                    <pre>{debugInfo}</pre>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
@@ -261,35 +231,6 @@ export default function AuthDemo() {
             onSwitchToLogin={handleFormSwitch}
           />
         )}
-
-        {/* Debug Section */}
-        <Card className="border-gray-200">
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Bug className="h-4 w-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Debug Tools</span>
-              </div>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDebugSession}
-                disabled={isLoading}
-                className="w-full"
-              >
-                <Bug className="h-4 w-4 mr-2" />
-                Debug Session Validation
-              </Button>
-
-              {debugInfo && (
-                <div className="p-3 bg-gray-100 rounded text-xs font-mono overflow-auto max-h-32">
-                  <pre>{debugInfo}</pre>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )
