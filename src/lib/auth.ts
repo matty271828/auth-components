@@ -637,10 +637,28 @@ class AuthClient {
 
       if (data.success && data.session && data.user) {
         // Store session token in localStorage
+        console.log('🔧 Login - storing token:', {
+          tokenLength: data.session.token.length,
+          tokenPrefix: data.session.token.substring(0, 20) + '...',
+          tokenSuffix: '...' + data.session.token.substring(data.session.token.length - 10),
+          sessionId: data.session.id,
+          expiresAt: data.session.expiresAt,
+          hasRefreshToken: !!data.session.refreshToken
+        });
+        
         localStorage.setItem('auth_token', data.session.token);
         localStorage.setItem('auth_user', JSON.stringify(data.user));
         localStorage.setItem('auth_session', JSON.stringify(data.session));
         localStorage.setItem('auth_stay_signed_in', staySignedIn.toString());
+        
+        // Verify storage immediately
+        const storedToken = localStorage.getItem('auth_token');
+        const storedSession = localStorage.getItem('auth_session');
+        console.log('🔧 Login - storage verification:', {
+          tokenMatches: storedToken === data.session.token,
+          tokenLength: storedToken?.length,
+          sessionStored: !!storedSession
+        });
         
         // Start session monitoring
         this.startSessionMonitoring();
@@ -782,6 +800,19 @@ class AuthClient {
     }
 
     try {
+      // Get the full session data for comparison
+      const session = this.getCurrentSession();
+      console.log('🔧 Session validation - full debug info:', {
+        tokenLength: token.length,
+        tokenPrefix: token.substring(0, 20) + '...',
+        tokenSuffix: '...' + token.substring(token.length - 10),
+        sessionId: session?.id,
+        sessionExpiresAt: session?.expiresAt,
+        hasRefreshToken: !!session?.refreshToken,
+        currentTime: new Date().toISOString(),
+        isExpired: session ? new Date(session.expiresAt) < new Date() : null
+      });
+      
       const response = await fetch(`${this.baseUrl}/auth/session`, {
         method: 'GET',
         headers: {
@@ -790,7 +821,23 @@ class AuthClient {
         },
       });
 
+      console.log('🔧 Session validation response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (!response.ok) {
+        // Try to get the full error response
+        let errorDetails = '';
+        try {
+          errorDetails = await response.text();
+          console.warn('🔧 Session validation error response:', errorDetails);
+        } catch (e) {
+          console.warn('🔧 Could not read error response body');
+        }
+        
         console.warn(`Session validation failed with status: ${response.status}`);
         // Clear invalid session
         this.logout();
@@ -806,6 +853,7 @@ class AuthClient {
         return false;
       }
 
+      console.log('🔧 Session validation successful');
       return true;
     } catch (error) {
       console.warn('Session validation failed:', error);
