@@ -29,15 +29,6 @@ export interface UseAuthReturn {
     maxRefreshAttempts: number;
   };
   
-  // Debug methods
-  debugValidateSession: () => Promise<{ isValid: boolean; error?: string; details?: any }>;
-  testAuthServiceDetailed: () => Promise<{ 
-    reachable: boolean; 
-    error?: string; 
-    details?: any;
-    sessionEndpoint?: any;
-  }>;
-  
   // Loading states
   isLoading: boolean;
   error: string | null;
@@ -207,47 +198,6 @@ export function useAuth(): UseAuthReturn {
     return auth.getSessionConfig();
   }, []);
 
-  // Debug method
-  const debugValidateSession = useCallback(async (): Promise<{ isValid: boolean; error?: string; details?: any }> => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const result = await auth.debugValidateSession();
-      updateAuthState();
-      return result;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Session debug validation failed';
-      setError(errorMessage);
-      return { isValid: false, error: errorMessage };
-    } finally {
-      setIsLoading(false);
-    }
-  }, [updateAuthState]);
-
-  // Test method
-  const testAuthServiceDetailed = useCallback(async (): Promise<{ 
-    reachable: boolean; 
-    error?: string; 
-    details?: any;
-    sessionEndpoint?: any;
-  }> => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const result = await auth.testAuthServiceDetailed();
-      updateAuthState();
-      return result;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Session test validation failed';
-      setError(errorMessage);
-      return { reachable: false, error: errorMessage };
-    } finally {
-      setIsLoading(false);
-    }
-  }, [updateAuthState]);
-
   return {
     isAuthenticated,
     user,
@@ -260,8 +210,6 @@ export function useAuth(): UseAuthReturn {
     logout,
     updateSessionConfig,
     getSessionConfig,
-    debugValidateSession,
-    testAuthServiceDetailed,
     isLoading,
     error,
   };

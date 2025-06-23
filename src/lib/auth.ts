@@ -263,11 +263,8 @@ class AuthClient {
           console.log('🔧 Session check: Periodic validation successful');
         } else {
           console.log('🔧 Session check: Periodic validation failed');
-          // TEMPORARY: Don't logout on validation failure while auth service issue is being fixed
-          console.log('🔧 TEMPORARY: Keeping session despite validation failure (auth service issue)');
-          // TODO: Re-enable this when auth service is fixed
-          // this.logout();
-          // this.emitSessionExpired();
+          this.logout();
+          this.emitSessionExpired();
         }
       } else {
         console.log('🔧 Session check: Skipping validation (too recent)');
@@ -554,7 +551,6 @@ class AuthClient {
     console.log('🔧 isAuthenticated check:', {
       hasToken: !!token,
       tokenLength: token?.length,
-      tokenPrefix: token?.substring(0, 20) + '...',
       timestamp: new Date().toISOString(),
       stack: new Error().stack?.split('\n').slice(1, 4).join(' | ') // Show call stack
     });
@@ -705,15 +701,10 @@ class AuthClient {
         // Store session token in localStorage
         console.log('🔧 Login - storing token:', {
           tokenLength: data.session.token.length,
-          tokenPrefix: data.session.token.substring(0, 20) + '...',
-          tokenSuffix: '...' + data.session.token.substring(data.session.token.length - 10),
           sessionId: data.session.id,
           expiresAt: data.session.expiresAt,
           hasRefreshToken: !!data.session.refreshToken
         });
-        
-        // Log the FULL token for debugging
-        console.log('🔧 Login - FULL TOKEN RECEIVED:', data.session.token);
         
         localStorage.setItem('auth_token', data.session.token);
         localStorage.setItem('auth_user', JSON.stringify(data.user));
@@ -728,9 +719,6 @@ class AuthClient {
           tokenLength: storedToken?.length,
           sessionStored: !!storedSession
         });
-        
-        // Log the FULL stored token for comparison
-        console.log('🔧 Login - FULL TOKEN STORED:', storedToken);
         
         // Start session monitoring
         this.startSessionMonitoring();
@@ -827,7 +815,6 @@ class AuthClient {
     console.log('🔧 Logout called:', {
       hadToken: !!token,
       tokenLength: token?.length,
-      tokenPrefix: token?.substring(0, 20) + '...',
       timestamp: new Date().toISOString(),
       stack: new Error().stack?.split('\n').slice(1, 4).join(' | ') // Show call stack
     });
@@ -885,17 +872,12 @@ class AuthClient {
       const session = this.getCurrentSession();
       console.log('🔧 Session validation - full debug info:', {
         tokenLength: token.length,
-        tokenPrefix: token.substring(0, 20) + '...',
-        tokenSuffix: '...' + token.substring(token.length - 10),
         sessionId: session?.id,
         sessionExpiresAt: session?.expiresAt,
         hasRefreshToken: !!session?.refreshToken,
         currentTime: new Date().toISOString(),
         isExpired: session ? new Date(session.expiresAt) < new Date() : null
       });
-      
-      // Log the FULL token being sent for debugging
-      console.log('🔧 Session validation - FULL TOKEN BEING SENT:', token);
       
       const response = await fetch(`${this.baseUrl}/auth/session`, {
         method: 'GET',
@@ -924,14 +906,9 @@ class AuthClient {
         
         console.warn(`Session validation failed with status: ${response.status}`);
         
-        // TEMPORARY WORKAROUND: Don't logout on validation failure
-        // This prevents automatic logout while auth service issue is being fixed
-        console.warn('🔧 TEMPORARY: Keeping session despite validation failure (auth service issue)');
-        return false; // Return false but don't logout
-        
-        // TODO: Re-enable this when auth service is fixed
-        // this.logout();
-        // return false;
+        // Clear invalid session
+        this.logout();
+        return false;
       }
 
       const data: AuthResponse = await response.json();
@@ -973,9 +950,7 @@ class AuthClient {
     }
 
     console.log('Validating session on app startup...');
-    console.log('Base URL:', this.baseUrl);
     console.log('Token exists:', !!token);
-    console.log('Token length:', token.length);
     
     try {
       const isValid = await this.validateSession();
@@ -1092,8 +1067,6 @@ class AuthClient {
     }
 
     try {
-      console.log('Debug: Making session validation request to:', `${this.baseUrl}/auth/session`);
-      
       const response = await fetch(`${this.baseUrl}/auth/session`, {
         method: 'GET',
         headers: {
@@ -1102,11 +1075,7 @@ class AuthClient {
         },
       });
 
-      console.log('Debug: Response status:', response.status);
-      console.log('Debug: Response headers:', Object.fromEntries(response.headers.entries()));
-
       const responseText = await response.text();
-      console.log('Debug: Response body:', responseText);
 
       let data: AuthResponse;
       try {
