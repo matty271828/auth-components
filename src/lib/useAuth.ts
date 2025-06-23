@@ -29,6 +29,9 @@ export interface UseAuthReturn {
     maxRefreshAttempts: number;
   };
   
+  // Debug methods
+  debugValidateSession: () => Promise<{ isValid: boolean; error?: string; details?: any }>;
+  
   // Loading states
   isLoading: boolean;
   error: string | null;
@@ -85,6 +88,26 @@ export function useAuth(): UseAuthReturn {
   // Initial state update
   useEffect(() => {
     updateAuthState();
+  }, [updateAuthState]);
+
+  // Validate session on app startup
+  useEffect(() => {
+    const validateOnStartup = async () => {
+      if (auth.isAuthenticated()) {
+        setIsLoading(true);
+        try {
+          await auth.validateSessionOnStartup();
+          updateAuthState();
+        } catch (error) {
+          console.error('Startup session validation failed:', error);
+          setError('Session validation failed. Please log in again.');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    validateOnStartup();
   }, [updateAuthState]);
 
   // Login method
@@ -178,6 +201,24 @@ export function useAuth(): UseAuthReturn {
     return auth.getSessionConfig();
   }, []);
 
+  // Debug method
+  const debugValidateSession = useCallback(async (): Promise<{ isValid: boolean; error?: string; details?: any }> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await auth.debugValidateSession();
+      updateAuthState();
+      return result;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Session debug validation failed';
+      setError(errorMessage);
+      return { isValid: false, error: errorMessage };
+    } finally {
+      setIsLoading(false);
+    }
+  }, [updateAuthState]);
+
   return {
     isAuthenticated,
     user,
@@ -190,6 +231,7 @@ export function useAuth(): UseAuthReturn {
     logout,
     updateSessionConfig,
     getSessionConfig,
+    debugValidateSession,
     isLoading,
     error,
   };

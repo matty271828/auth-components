@@ -77,18 +77,42 @@ class AuthClient {
     
     this.isDevelopment = import.meta.env.DEV;
     
-    // Initialize session management
-    this.initializeSessionManagement();
+    // Initialize session management asynchronously
+    if (typeof window !== 'undefined') {
+      // Use setTimeout to ensure this runs after the constructor completes
+      setTimeout(() => {
+        this.initializeSessionManagement().catch(error => {
+          console.error('Failed to initialize session management:', error);
+        });
+      }, 0);
+    }
   }
 
   /**
    * Initialize session management and start monitoring
    */
-  private initializeSessionManagement(): void {
+  private async initializeSessionManagement(): Promise<void> {
     if (typeof window === 'undefined') return;
 
-    // Start session monitoring if user is authenticated
+    // Validate session with server before starting monitoring
     if (this.isAuthenticated()) {
+      try {
+        const isValid = await this.validateSession();
+        if (!isValid) {
+          // Session is invalid, clear it and don't start monitoring
+          console.log('Session validation failed on initialization, clearing session');
+          this.logout();
+          return;
+        }
+        console.log('Session validated successfully on initialization');
+      } catch (error) {
+        console.error('Session validation error on initialization:', error);
+        // On error, clear the session to be safe
+        this.logout();
+        return;
+      }
+      
+      // Only start monitoring if session is valid
       this.startSessionMonitoring();
     }
 
@@ -161,6 +185,7 @@ class AuthClient {
 
     const session = this.getCurrentSession();
     if (!session) {
+      console.log('No session found, logging out');
       this.logout();
       return;
     }
@@ -177,8 +202,31 @@ class AuthClient {
       this.emitSessionExpired();
     } else if (timeUntilExpiry <= refreshThresholdMs) {
       // Session is about to expire, refresh it
-      console.log('Session expiring soon, refreshing token');
-      await this.refreshSession();
+      console.log(`Session expiring in ${Math.round(timeUntilExpiry / 1000 / 60)} minutes, refreshing token`);
+      const refreshSuccess = await this.refreshSession();
+      if (!refreshSuccess) {
+        console.log('Session refresh failed, logging out');
+        this.logout();
+        this.emitSessionExpired();
+      }
+    } else {
+      // Session is still valid, but let's validate it with the server periodically
+      // Only validate every 5 minutes to avoid too many requests
+      const lastValidation = localStorage.getItem('auth_last_validation');
+      const now = Date.now();
+      const validationInterval = 5 * 60 * 1000; // 5 minutes
+      
+      if (!lastValidation || (now - parseInt(lastValidation)) > validationInterval) {
+        console.log('Performing periodic session validation');
+        const isValid = await this.validateSession();
+        if (isValid) {
+          localStorage.setItem('auth_last_validation', now.toString());
+        } else {
+          console.log('Periodic validation failed, logging out');
+          this.logout();
+          this.emitSessionExpired();
+        }
+      }
     }
   }
 
@@ -715,6 +763,7 @@ class AuthClient {
     localStorage.removeItem('auth_user');
     localStorage.removeItem('auth_session');
     localStorage.removeItem('auth_stay_signed_in');
+    localStorage.removeItem('auth_last_validation'); // Clear validation timestamp
     this.csrfToken = null; // Clear CSRF token on logout
     this.csrfTokenExpiresAt = null; // Clear CSRF token expiration on logout
     
@@ -745,9 +794,17 @@ class AuthClient {
         },
       });
 
+      if (!response.ok) {
+        console.warn(`Session validation failed with status: ${response.status}`);
+        // Clear invalid session
+        this.logout();
+        return false;
+      }
+
       const data: AuthResponse = await response.json();
 
       if (!data.success) {
+        console.warn('Session validation failed:', data.error || 'Unknown error');
         // Clear invalid session
         this.logout();
         return false;
@@ -756,6 +813,47 @@ class AuthClient {
       return true;
     } catch (error) {
       console.warn('Session validation failed:', error);
+      // Don't clear session on network errors, only on validation errors
+      // This prevents clearing session when the server is temporarily unavailable
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.log('Network error during session validation, keeping session');
+        return false; // Return false but don't logout
+      }
+      
+      // For other errors, clear the session
+      this.logout();
+      return false;
+    }
+  }
+
+  /**
+   * Validate session on app startup - this should be called when the app first loads
+   */
+  async validateSessionOnStartup(): Promise<boolean> {
+    if (typeof window === 'undefined') return false;
+
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      console.log('No auth token found on startup');
+      return false;
+    }
+
+    console.log('Validating session on app startup...');
+    console.log('Base URL:', this.baseUrl);
+    console.log('Token exists:', !!token);
+    console.log('Token length:', token.length);
+    
+    try {
+      const isValid = await this.validateSession();
+      if (isValid) {
+        console.log('Session is valid on startup, starting session monitoring');
+        this.startSessionMonitoring();
+      } else {
+        console.log('Session is invalid on startup, user will need to log in again');
+      }
+      return isValid;
+    } catch (error) {
+      console.error('Session validation error on startup:', error);
       this.logout();
       return false;
     }
@@ -840,6 +938,65 @@ class AuthClient {
    */
   getSessionConfig(): SessionConfig {
     return { ...this.sessionConfig };
+  }
+
+  /**
+   * Manually trigger session validation (for debugging)
+   */
+  async debugValidateSession(): Promise<{ isValid: boolean; error?: string; details?: any }> {
+    if (typeof window === 'undefined') {
+      return { isValid: false, error: 'Not in browser environment' };
+    }
+
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      return { isValid: false, error: 'No token found' };
+    }
+
+    if (this.shouldUseMock()) {
+      return { isValid: true, details: { mode: 'mock' } };
+    }
+
+    try {
+      console.log('Debug: Making session validation request to:', `${this.baseUrl}/auth/session`);
+      
+      const response = await fetch(`${this.baseUrl}/auth/session`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Debug: Response status:', response.status);
+      console.log('Debug: Response headers:', Object.fromEntries(response.headers.entries()));
+
+      const responseText = await response.text();
+      console.log('Debug: Response body:', responseText);
+
+      let data: AuthResponse;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        return { 
+          isValid: false, 
+          error: 'Invalid JSON response', 
+          details: { responseText, parseError } 
+        };
+      }
+
+      return { 
+        isValid: data.success, 
+        error: data.error,
+        details: { data, status: response.status }
+      };
+    } catch (error) {
+      return { 
+        isValid: false, 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        details: { error }
+      };
+    }
   }
 
   /**
