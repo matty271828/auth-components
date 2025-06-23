@@ -226,14 +226,7 @@ import { AuthDemo } from 'auth-components'
 
 ## Configuration
 
-### Environment Variables
-
-To connect to a real auth service, set the environment variable:
-
-```bash
-# Create .env file
-VITE_AUTH_SERVICE_URL=https://your-domain.com
-```
+The auth components automatically connect to the auth service running on your domain at `/auth`. No environment variables are required.
 
 ### Development Mode
 
@@ -247,7 +240,7 @@ When running locally without an auth service, the components automatically use m
 
 ## Auth Service Integration
 
-The components automatically connect to the auth service running on your domain. The auth service provides these endpoints:
+The components automatically connect to the auth service running on your domain at `/auth`. The auth service provides these endpoints:
 
 - `POST /auth/login` - User authentication
 - `POST /auth/signup` - User registration  
@@ -255,6 +248,7 @@ The components automatically connect to the auth service running on your domain.
 - `GET /auth/session` - Session validation
 - `GET /auth/csrf-token` - CSRF token generation
 - `GET /auth/health` - Service health check
+- `POST /auth/graphql` - GraphQL endpoint for data operations
 
 ### CSRF Protection
 
@@ -304,8 +298,7 @@ When running in development without an auth service:
 The components are designed to work with the auth service. For local development, you can:
 
 1. **Use Mock Mode** (recommended) - Test UI without auth service
-2. **Connect to Deployed Service** - Set `VITE_AUTH_SERVICE_URL` environment variable
-3. **Test in Production** - Deploy and test with real auth service
+2. **Test in Production** - Deploy and test with real auth service
 
 ### Troubleshooting
 

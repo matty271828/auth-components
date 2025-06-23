@@ -68,9 +68,8 @@ class AuthClient {
     if (baseUrl) {
       this.baseUrl = baseUrl;
     } else if (typeof window !== 'undefined') {
-      // Check for environment variable or use current domain
-      const authServiceUrl = import.meta.env.VITE_AUTH_SERVICE_URL;
-      this.baseUrl = authServiceUrl || window.location.origin;
+      // Use current domain with /auth appended
+      this.baseUrl = `${window.location.origin}/auth`;
     } else {
       this.baseUrl = '';
     }
@@ -350,11 +349,8 @@ class AuthClient {
    * Check if we're in development mode and should use mock responses
    */
   private shouldUseMock(): boolean {
-    // In development, use mock mode if:
-    // 1. We're in development mode AND
-    // 2. Either no auth service URL is configured OR we're on localhost
+    // In development, use mock mode if we're on localhost
     return this.isDevelopment && (
-      !import.meta.env.VITE_AUTH_SERVICE_URL || 
       this.baseUrl.includes('localhost') ||
       this.baseUrl.includes('127.0.0.1')
     );
