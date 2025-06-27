@@ -7,14 +7,16 @@ import { CheckCircle, XCircle, AlertTriangle, Clock, Shield, ShieldOff, LogOut }
 import LoginForm from "./LoginForm"
 import RegistrationForm from "./RegistrationForm"
 import PasswordResetForm from "./PasswordResetForm"
+import ChangePasswordForm from "./ChangePasswordForm"
 import { auth } from "@/lib/auth"
 import { useAuth } from "@/lib/useAuth"
 import type { User } from "@/lib/auth"
 
-type AuthView = "login" | "register" | "forgotPassword"
+type AuthView = "login" | "register" | "forgotPassword" | "changePassword"
 
 export default function AuthDemo() {
   const [view, setView] = useState<AuthView>("login")
+  const [showDevButtons, setShowDevButtons] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [isMockMode, setIsMockMode] = useState(false)
@@ -220,6 +222,28 @@ export default function AuthDemo() {
           </Card>
         )}
 
+        {/* Dev Buttons */}
+        <div className="flex justify-center mb-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowDevButtons(!showDevButtons)}
+          >
+            {showDevButtons ? "Hide Dev Buttons" : "Show Dev Buttons"}
+          </Button>
+        </div>
+
+        {showDevButtons && (
+          <Card className="border-gray-200 bg-gray-50">
+            <CardContent className="pt-6 flex flex-wrap gap-2 justify-center">
+              <Button onClick={() => handleViewChange("login")} size="sm">Login</Button>
+              <Button onClick={() => handleViewChange("register")} size="sm">Register</Button>
+              <Button onClick={() => handleViewChange("forgotPassword")} size="sm">Forgot Password</Button>
+              <Button onClick={() => handleViewChange("changePassword")} size="sm">Change Password</Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Auth Form */}
         {view === "login" && (
           <LoginForm 
@@ -244,6 +268,18 @@ export default function AuthDemo() {
             }}
             onError={handleError}
             onSwitchToLogin={() => handleViewChange("login")}
+          />
+        )}
+        {view === "changePassword" && (
+          <ChangePasswordForm
+            onSuccess={() => {
+              setSuccessMessage("Your password has been successfully changed.")
+              setView("login")
+            }}
+            onError={handleError}
+            onSwitchToLogin={() => handleViewChange("login")}
+            // TODO: Pass the token from the URL or other source
+            token={"your-reset-token-here"} 
           />
         )}
       </div>
