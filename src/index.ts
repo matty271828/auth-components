@@ -1,6 +1,8 @@
 // Main library exports
 export { default as LoginForm } from './components/LoginForm'
 export { default as RegistrationForm } from './components/RegistrationForm'
+export { default as ChangePasswordForm } from './components/ChangePasswordForm'
+export { default as EmailVerificationForm } from './components/EmailVerificationForm'
 
 // Auth utilities and types
 export { auth } from './lib/auth'
