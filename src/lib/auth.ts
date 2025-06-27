@@ -47,6 +47,17 @@ class AuthClient {
   private async initializeSessionManagement(): Promise<void> {
     if (typeof window === 'undefined') return;
 
+    // Fetch CSRF token on initial page load to deposit it in the database
+    try {
+      console.log('🔧 Initializing CSRF token on page load...');
+      await api.getCSRFToken();
+      console.log('🔧 CSRF token initialized successfully');
+    } catch (error) {
+      console.error('🔧 Failed to initialize CSRF token on page load:', error);
+      // Don't fail initialization if CSRF token fetch fails
+      // The token will be fetched when needed for authenticated requests
+    }
+
     // Validate session with server before starting monitoring
     if (this.isAuthenticated()) {
       try {

@@ -16,8 +16,29 @@ const getAuthToken = () => {
 
 // Helper function to get CSRF token (simplified version)
 const getCSRFToken = async (): Promise<string> => {
-    // For now, return a simple token - this could be enhanced later
-    return `csrf-${Date.now()}`;
+    try {
+        const response = await fetch(`${getApiUrl()}/auth/csrf-token`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to get CSRF token: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.success && data.token) {
+            return data.token;
+        } else {
+            throw new Error(`Invalid CSRF token response: ${data.message || 'No token in response'}`);
+        }
+    } catch (error) {
+        console.error('Error getting CSRF token:', error);
+        throw error;
+    }
 };
 
 // Helper function to make authenticated requests
@@ -195,6 +216,38 @@ const api = {
         } catch (error) {
             console.error('Session validation failed:', error);
             return false;
+        }
+    },
+
+    async getCSRFToken(): Promise<string> {
+        try {
+            const response = await fetch(`${getApiUrl()}/auth/csrf-token`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to get CSRF token: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            // Handle the response format with success, message, and token fields
+            if (data.success && data.token) {
+                console.log('🔧 CSRF token received:', {
+                    success: data.success,
+                    message: data.message,
+                    tokenLength: data.token.length
+                });
+                return data.token;
+            } else {
+                throw new Error(`Invalid CSRF token response: ${data.message || 'No token in response'}`);
+            }
+        } catch (error) {
+            console.error('Error getting CSRF token:', error);
+            throw error;
         }
     },
 
