@@ -9,11 +9,12 @@ import RegistrationForm from "./RegistrationForm"
 import PasswordResetForm from "./PasswordResetForm"
 import ChangePasswordForm from "./ChangePasswordForm"
 import EmailVerificationForm from "./EmailVerificationForm"
+import AccountSettings from "./AccountSettings"
 import { auth } from "@/lib/auth"
 import { useAuth } from "@/lib/useAuth"
 import type { User } from "@/lib/auth"
 
-type AuthView = "login" | "register" | "forgotPassword" | "changePassword" | "verifyEmail"
+type AuthView = "login" | "register" | "forgotPassword" | "changePassword" | "verifyEmail" | "accountSettings"
 
 export default function AuthDemo() {
   const [view, setView] = useState<AuthView>("login")
@@ -23,6 +24,8 @@ export default function AuthDemo() {
   const [isMockMode, setIsMockMode] = useState(false)
   const [timeUntilExpiration, setTimeUntilExpiration] = useState<string>("")
   const [isSessionExpiringSoon, setIsSessionExpiringSoon] = useState(false)
+  const [isSignedIn, setIsSignedIn] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
 
   const { user, logout, isLoading } = useAuth()
 
@@ -49,6 +52,7 @@ export default function AuthDemo() {
   const handleSuccess = (user: User) => {
     setSuccessMessage(`Welcome, ${user.firstName}! You have been successfully ${view === 'login' ? 'logged in' : 'registered'}.`)
     setErrorMessage("")
+    setIsSignedIn(true)
   }
 
   const handleError = (error: string) => {
@@ -67,13 +71,14 @@ export default function AuthDemo() {
       await logout()
       setSuccessMessage("")
       setErrorMessage("")
+      setIsSignedIn(false)
     } catch (error) {
       setErrorMessage("Logout failed")
     }
   }
 
   // Show authenticated user interface
-  if (user) {
+  if (user || isSignedIn) {
     const isStaySignedIn = auth.isStaySignedInEnabled()
     const sessionConfig = auth.getSessionConfig()
 
@@ -117,9 +122,9 @@ export default function AuthDemo() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold text-blue-900">
-                      {user.firstName} {user.lastName}
+                      {user?.firstName || "John"} {user?.lastName || "Doe"}
                     </h3>
-                    <p className="text-sm text-blue-700">{user.email}</p>
+                    <p className="text-sm text-blue-700">{user?.email || "john.doe@example.com"}</p>
                   </div>
                   <div className="flex items-center space-x-1 text-xs">
                     {isStaySignedIn ? (
@@ -141,7 +146,7 @@ export default function AuthDemo() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-blue-700">Session expires in:</span>
                     <span className={`font-medium ${isSessionExpiringSoon ? 'text-orange-600' : 'text-blue-900'}`}>
-                      {timeUntilExpiration}
+                      {timeUntilExpiration || "2 hours 30 minutes"}
                     </span>
                   </div>
 
@@ -160,17 +165,28 @@ export default function AuthDemo() {
                   </div>
                 </div>
 
-                {/* Logout Button */}
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleLogout}
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
+                {/* Action Buttons */}
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsSignedIn(false)}
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    Switch to Not Signed In
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleLogout}
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -242,6 +258,7 @@ export default function AuthDemo() {
               <Button onClick={() => handleViewChange("forgotPassword")} size="sm">Forgot Password</Button>
               <Button onClick={() => handleViewChange("changePassword")} size="sm">Change Password</Button>
               <Button onClick={() => handleViewChange("verifyEmail")} size="sm">Verify Email</Button>
+              <Button onClick={() => handleViewChange("accountSettings")} size="sm">Account Settings</Button>
             </CardContent>
           </Card>
         )}
@@ -294,6 +311,49 @@ export default function AuthDemo() {
             // TODO: Pass the token from the URL or other source
             token={"your-verification-token-here"} 
           />
+        )}
+        {view === "accountSettings" && (
+          <AccountSettings
+            user={{
+              email: "john.doe@example.com",
+              firstName: "John",
+              lastName: "Doe",
+              memberSince: "2024-01-15"
+            }}
+            subscription={{
+              currentPlan: isSubscribed ? "premium" : "free",
+              status: "active",
+              nextBillingDate: isSubscribed ? "2024-02-15" : undefined,
+              amount: isSubscribed ? 12.99 : undefined,
+              currency: "GBP",
+              interval: "month"
+            }}
+            onUpgrade={() => {
+              setSuccessMessage("Upgrade process initiated successfully.")
+            }}
+            onCancel={() => {
+              setSuccessMessage("This would redirect to Stripe Customer Portal for cancellation")
+            }}
+            onManage={() => {
+              setSuccessMessage("This would redirect to Stripe Customer Portal")
+            }}
+          />
+        )}
+
+        {/* Subscription State Toggle */}
+        {view === "accountSettings" && (
+          <Card className="border-gray-200 bg-gray-50">
+            <CardContent className="pt-6">
+              <div className="flex flex-wrap gap-2 justify-center">
+                <Button 
+                  onClick={() => setIsSubscribed(!isSubscribed)} 
+                  size="sm"
+                >
+                  {isSubscribed ? "Switch to Free" : "Switch to Premium"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
