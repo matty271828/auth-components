@@ -83,7 +83,7 @@ export default function AccountSettings({
       // Fallback to free plan if we can't fetch status
       setSubscription({
         currentPlan: "free",
-        status: "active"
+        status: "free"
       })
     }
   }
@@ -107,13 +107,21 @@ export default function AccountSettings({
     if (!subscription) return null
     
     switch (subscription.status) {
-      case "active":
+      case "free":
         return {
           icon: CheckCircle,
           color: "text-green-500",
           bgColor: "bg-green-50",
           borderColor: "border-green-200",
-          text: "Active"
+          text: "Free Plan"
+        }
+      case "premium":
+        return {
+          icon: Crown,
+          color: "text-yellow-500",
+          bgColor: "bg-yellow-50",
+          borderColor: "border-yellow-200",
+          text: "Premium"
         }
       case "cancelled":
         return {
@@ -122,22 +130,6 @@ export default function AccountSettings({
           bgColor: "bg-red-50",
           borderColor: "border-red-200",
           text: "Cancelled"
-        }
-      case "past_due":
-        return {
-          icon: AlertCircle,
-          color: "text-orange-500",
-          bgColor: "bg-orange-50",
-          borderColor: "border-orange-200",
-          text: "Past Due"
-        }
-      case "trialing":
-        return {
-          icon: Crown,
-          color: "text-blue-500",
-          bgColor: "bg-blue-50",
-          borderColor: "border-blue-200",
-          text: "Trial"
         }
       default:
         return {
@@ -271,7 +263,7 @@ export default function AccountSettings({
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Status:</span>
             <Badge 
-              variant={subscription.status === "active" ? "default" : "secondary"}
+              variant={subscription.status === "free" ? "default" : "secondary"}
               className={`${statusConfig?.bgColor} ${statusConfig?.borderColor} ${statusConfig?.color}`}
             >
               <StatusIcon className="h-3 w-3 mr-1" />
@@ -406,14 +398,6 @@ export default function AccountSettings({
               <div className="w-full p-3 bg-orange-50 border border-orange-200 rounded-md">
                 <p className="text-sm text-orange-800">
                   Your subscription has been cancelled. You'll lose access on {subscription.nextBillingDate ? formatDate(subscription.nextBillingDate) : "your next billing date"}.
-                </p>
-              </div>
-            )}
-
-            {subscription.status === "past_due" && (
-              <div className="w-full p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-800">
-                  Your payment is past due. Please update your payment method to continue using premium features.
                 </p>
               </div>
             )}

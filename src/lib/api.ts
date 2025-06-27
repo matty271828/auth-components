@@ -352,7 +352,30 @@ const api = {
             throw new Error("Failed to get subscription status");
         }
 
-        return res.json();
+        const data = await res.json();
+        
+        // Map the API response to the expected SubscriptionStatus format
+        if (data.success && data.subscription) {
+            const subscription = data.subscription;
+            
+            // Determine current plan based on status
+            const currentPlan: "free" | "premium" = subscription.status === "free" ? "free" : "premium";
+            
+            return {
+                currentPlan,
+                status: subscription.status,
+                nextBillingDate: subscription.nextBillingDate,
+                amount: subscription.amount,
+                currency: subscription.currency,
+                interval: subscription.interval
+            };
+        }
+        
+        // Fallback for unexpected response format
+        return {
+            currentPlan: "free",
+            status: "free"
+        };
     },
 };
 

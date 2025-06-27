@@ -47,7 +47,7 @@ export interface CreatePortalSessionRequest {
 
 export interface SubscriptionStatus {
     currentPlan: "free" | "premium";
-    status: "active" | "cancelled" | "past_due" | "trialing";
+    status: "free" | "premium" | "cancelled";
     nextBillingDate?: string;
     amount?: number;
     currency?: string;
