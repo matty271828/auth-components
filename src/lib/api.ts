@@ -241,7 +241,7 @@ const api = {
             throw new Error("User not authenticated");
         }
 
-        const res = await fetch(`${getApiUrl()}/create-checkout-session`, {
+        const res = await fetch(`${getApiUrl()}/auth/create-checkout-session`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -265,7 +265,7 @@ const api = {
             throw new Error("User not authenticated");
         }
 
-        const res = await fetch(`${getApiUrl()}/create-portal-session`, {
+        const res = await fetch(`${getApiUrl()}/auth/create-portal-session`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -287,7 +287,7 @@ const api = {
             throw new Error("User not authenticated");
         }
 
-        const res = await fetch(`${getApiUrl()}/subscription`, {
+        const res = await fetch(`${getApiUrl()}/auth/subscription`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
