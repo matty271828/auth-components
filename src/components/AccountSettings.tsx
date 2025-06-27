@@ -2,9 +2,9 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "./ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import { Badge } from "./ui/badge"
 import { 
   User, 
   Mail, 
@@ -17,8 +17,8 @@ import {
   AlertCircle,
   Loader2
 } from "lucide-react"
-import api from "@/lib/api"
-import type { SubscriptionStatus } from "@/lib/types"
+import api from "../lib/api"
+import type { SubscriptionStatus } from "../lib/types"
 
 interface PlanFeature {
   name: string
@@ -219,7 +219,7 @@ export default function AccountSettings({
   const StatusIcon = statusConfig?.icon || AlertCircle
 
   return (
-    <div className={`w-full max-w-4xl mx-auto space-y-6 ${className || ""}`}>
+    <div className={`w-full max-w-md mx-auto space-y-6 ${className || ""}`}>
       {/* Success Message */}
       {successMessage && (
         <Card className="border-green-200 bg-green-50">
