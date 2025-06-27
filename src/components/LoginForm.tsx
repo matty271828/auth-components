@@ -17,9 +17,10 @@ interface LoginFormProps {
   onError?: (error: string) => void
   redirectUrl?: string
   onSwitchToRegister?: () => void
+  onSwitchToPasswordReset?: () => void
 }
 
-export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToRegister }: LoginFormProps) {
+export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToRegister, onSwitchToPasswordReset }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -166,18 +167,27 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
               "Sign In"
             )}
           </Button>
-          <p className="text-xs sm:text-sm text-center text-muted-foreground">
-            Don't have an account?{" "}
+          <div className="w-full flex justify-between items-center text-xs sm:text-sm">
+            <p className="text-muted-foreground">
+              Don't have an account?{" "}
+              <button 
+                type="button"
+                onClick={onSwitchToRegister}
+                className="text-primary hover:underline font-medium"
+              >
+                Create account
+              </button>
+            </p>
             <button 
               type="button"
-              onClick={onSwitchToRegister}
+              onClick={onSwitchToPasswordReset}
               className="text-primary hover:underline font-medium"
             >
-              Create account
+              Forgot password?
             </button>
-          </p>
+          </div>
         </CardFooter>
       </form>
     </Card>
   )
-} 
+}

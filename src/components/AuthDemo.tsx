@@ -6,12 +6,15 @@ import { Button } from "@/components/ui/button"
 import { CheckCircle, XCircle, AlertTriangle, Clock, Shield, ShieldOff, LogOut } from "lucide-react"
 import LoginForm from "./LoginForm"
 import RegistrationForm from "./RegistrationForm"
+import PasswordResetForm from "./PasswordResetForm"
 import { auth } from "@/lib/auth"
 import { useAuth } from "@/lib/useAuth"
 import type { User } from "@/lib/auth"
 
+type AuthView = "login" | "register" | "forgotPassword"
+
 export default function AuthDemo() {
-  const [isLogin, setIsLogin] = useState(true)
+  const [view, setView] = useState<AuthView>("login")
   const [successMessage, setSuccessMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [isMockMode, setIsMockMode] = useState(false)
@@ -41,7 +44,7 @@ export default function AuthDemo() {
   }, [user])
 
   const handleSuccess = (user: User) => {
-    setSuccessMessage(`Welcome, ${user.firstName}! You have been successfully ${isLogin ? 'logged in' : 'registered'}.`)
+    setSuccessMessage(`Welcome, ${user.firstName}! You have been successfully ${view === 'login' ? 'logged in' : 'registered'}.`)
     setErrorMessage("")
   }
 
@@ -50,8 +53,8 @@ export default function AuthDemo() {
     setSuccessMessage("")
   }
 
-  const handleFormSwitch = () => {
-    setIsLogin(!isLogin)
+  const handleViewChange = (newView: AuthView) => {
+    setView(newView)
     setSuccessMessage("")
     setErrorMessage("")
   }
@@ -218,20 +221,32 @@ export default function AuthDemo() {
         )}
 
         {/* Auth Form */}
-        {isLogin ? (
+        {view === "login" && (
           <LoginForm 
             onSuccess={handleSuccess}
             onError={handleError}
-            onSwitchToRegister={handleFormSwitch}
+            onSwitchToRegister={() => handleViewChange("register")}
+            onSwitchToPasswordReset={() => handleViewChange("forgotPassword")}
           />
-        ) : (
+        )}
+        {view === "register" && (
           <RegistrationForm 
             onSuccess={handleSuccess}
             onError={handleError}
-            onSwitchToLogin={handleFormSwitch}
+            onSwitchToLogin={() => handleViewChange("login")}
+          />
+        )}
+        {view === "forgotPassword" && (
+          <PasswordResetForm 
+            onSuccess={() => {
+              setSuccessMessage("A password reset link has been sent to your email.")
+              setView("login")
+            }}
+            onError={handleError}
+            onSwitchToLogin={() => handleViewChange("login")}
           />
         )}
       </div>
     </div>
   )
-} 
+}
