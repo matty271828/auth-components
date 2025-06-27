@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { auth } from "@/lib/auth"
-import type { User } from "../lib/types"
+import type { User } from "@/lib/types"
 
 interface LoginFormProps {
   onSuccess?: (user: User) => void

@@ -16,8 +16,8 @@ import {
   AlertCircle,
   Loader2
 } from "lucide-react"
-import api from "../lib/api"
-import type { SubscriptionStatus } from "../lib/types"
+import api from "@/lib/api"
+import type { SubscriptionStatus } from "@/lib/types"
 
 interface PlanFeature {
   name: string
