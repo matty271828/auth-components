@@ -5,6 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/**
+ * Get the base API URL for the application
+ * Uses the same logic as the auth client - current domain
+ */
+export function getApiUrl(): string {
+  return window.location.origin;
+}
+
 // Common passwords to check against
 const COMMON_PASSWORDS = [
   'password', '123456', '123456789', 'qwerty', 'abc123', 'password123',
