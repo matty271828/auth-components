@@ -1,6 +1,5 @@
 "use client"
 
-import type React from "react"
 import { useState, useEffect } from "react"
 import { Button } from "./ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
@@ -34,18 +33,12 @@ interface UserDetails {
 
 interface AccountSettingsProps {
   user: UserDetails
-  freePlanFeatures?: PlanFeature[]
   premiumPlanFeatures?: PlanFeature[]
   className?: string
 }
 
 export default function AccountSettings({
   user,
-  freePlanFeatures = [
-    { name: "Basic features" },
-    { name: "Limited projects" },
-    { name: "Community support" }
-  ],
   premiumPlanFeatures = [
     { name: "Unlimited projects" },
     { name: "Advanced analytics" },

@@ -25,7 +25,6 @@ export default function AuthDemo() {
   const [timeUntilExpiration, setTimeUntilExpiration] = useState<string>("")
   const [isSessionExpiringSoon, setIsSessionExpiringSoon] = useState(false)
   const [isSignedIn, setIsSignedIn] = useState(false)
-  const [isSubscribed, setIsSubscribed] = useState(false)
 
   const { user, logout, isLoading } = useAuth()
 
