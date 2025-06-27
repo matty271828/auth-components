@@ -8,11 +8,12 @@ import LoginForm from "./LoginForm"
 import RegistrationForm from "./RegistrationForm"
 import PasswordResetForm from "./PasswordResetForm"
 import ChangePasswordForm from "./ChangePasswordForm"
+import EmailVerificationForm from "./EmailVerificationForm"
 import { auth } from "@/lib/auth"
 import { useAuth } from "@/lib/useAuth"
 import type { User } from "@/lib/auth"
 
-type AuthView = "login" | "register" | "forgotPassword" | "changePassword"
+type AuthView = "login" | "register" | "forgotPassword" | "changePassword" | "verifyEmail"
 
 export default function AuthDemo() {
   const [view, setView] = useState<AuthView>("login")
@@ -240,6 +241,7 @@ export default function AuthDemo() {
               <Button onClick={() => handleViewChange("register")} size="sm">Register</Button>
               <Button onClick={() => handleViewChange("forgotPassword")} size="sm">Forgot Password</Button>
               <Button onClick={() => handleViewChange("changePassword")} size="sm">Change Password</Button>
+              <Button onClick={() => handleViewChange("verifyEmail")} size="sm">Verify Email</Button>
             </CardContent>
           </Card>
         )}
@@ -280,6 +282,18 @@ export default function AuthDemo() {
             onSwitchToLogin={() => handleViewChange("login")}
             // TODO: Pass the token from the URL or other source
             token={"your-reset-token-here"} 
+          />
+        )}
+        {view === "verifyEmail" && (
+          <EmailVerificationForm
+            onSuccess={() => {
+              setSuccessMessage("Your email has been successfully verified.")
+              setView("login")
+            }}
+            onError={handleError}
+            onSwitchToLogin={() => handleViewChange("login")}
+            // TODO: Pass the token from the URL or other source
+            token={"your-verification-token-here"} 
           />
         )}
       </div>
