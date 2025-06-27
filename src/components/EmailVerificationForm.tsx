@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, MailCheck } from "lucide-react"
+import { auth } from "@/lib/auth"
 
 interface EmailVerificationFormProps {
   onSuccess?: () => void
@@ -31,11 +32,8 @@ export default function EmailVerificationForm({ onSuccess, onError, onSwitchToLo
     setSuccess(false)
 
     try {
-      // TODO: Implement API call to verify email using the token
-      console.log("Verifying email with token:", token)
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      const response = await auth.verifyEmail(token)
+      console.log("Email verification response:", response)
       
       setSuccess(true)
       onSuccess?.()

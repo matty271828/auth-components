@@ -635,6 +635,130 @@ class AuthClient {
   }
 
   /**
+   * Request a password reset link
+   */
+  async requestPasswordReset(email: string): Promise<AuthResponse> {
+    console.log('🔧 Auth requestPasswordReset called with:', {
+      isDevelopment: this.isDevelopment,
+      baseUrl: this.baseUrl,
+      shouldUseMock: this.shouldUseMock(),
+      email
+    });
+
+    if (this.shouldUseMock()) {
+      console.log('🔧 Using mock requestPasswordReset');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!email) {
+        throw new Error('Email is required');
+      }
+      return { success: true, message: 'Password reset link sent (mock)' };
+    }
+
+    try {
+      const data: AuthResponse = await this.makeAuthenticatedRequest<AuthResponse>(
+        `${this.baseUrl}/auth/password-reset`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to request password reset');
+      }
+      return data;
+    } catch (error) {
+      console.error('Request password reset failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Change user's password using a reset token
+   */
+  async changePassword(token: string, newPassword: string): Promise<AuthResponse> {
+    console.log('🔧 Auth changePassword called with:', {
+      isDevelopment: this.isDevelopment,
+      baseUrl: this.baseUrl,
+      shouldUseMock: this.shouldUseMock(),
+      token: token ? 'present' : 'missing',
+      newPassword: newPassword ? 'present' : 'missing'
+    });
+
+    if (this.shouldUseMock()) {
+      console.log('🔧 Using mock changePassword');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!token || !newPassword) {
+        throw new Error('Token and new password are required');
+      }
+      return { success: true, message: 'Password changed successfully (mock)' };
+    }
+
+    try {
+      const data: AuthResponse = await this.makeAuthenticatedRequest<AuthResponse>(
+        `${this.baseUrl}/auth/password-reset/confirm`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token, newPassword }),
+        }
+      );
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to change password');
+      }
+      return data;
+    } catch (error) {
+      console.error('Change password failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Verify user's email address
+   */
+  async verifyEmail(token: string): Promise<AuthResponse> {
+    console.log('🔧 Auth verifyEmail called with:', {
+      isDevelopment: this.isDevelopment,
+      baseUrl: this.baseUrl,
+      shouldUseMock: this.shouldUseMock(),
+      token: token ? 'present' : 'missing'
+    });
+
+    if (this.shouldUseMock()) {
+      console.log('🔧 Using mock verifyEmail');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!token) {
+        throw new Error('Verification token is required');
+      }
+      return { success: true, message: 'Email verified successfully (mock)' };
+    }
+
+    try {
+      const data: AuthResponse = await this.makeAuthenticatedRequest<AuthResponse>(
+        `${this.baseUrl}/auth/verify-email`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        }
+      );
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to verify email');
+      }
+      return data;
+    } catch (error) {
+      console.error('Email verification failed:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Login user
    */
   async login(loginData: LoginData, staySignedIn: boolean = true): Promise<User> {

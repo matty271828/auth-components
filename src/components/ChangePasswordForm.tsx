@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, Eye, EyeOff } from "lucide-react"
+import { auth } from "@/lib/auth"
 
 interface ChangePasswordFormProps {
   onSuccess?: () => void
@@ -54,11 +55,8 @@ export default function ChangePasswordForm({ onSuccess, onError, onSwitchToLogin
     setSuccess(false)
 
     try {
-      // TODO: Implement API call to change password using the token
-      console.log("Changing password with token:", token, "and new password:", newPassword)
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      const response = await auth.changePassword(token, newPassword)
+      console.log("Password change response:", response)
       
       setSuccess(true)
       onSuccess?.()

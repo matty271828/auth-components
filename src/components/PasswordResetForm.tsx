@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
+import { auth } from "@/lib/auth"
 
 interface PasswordResetFormProps {
   onSuccess?: () => void
@@ -33,11 +34,8 @@ export default function PasswordResetForm({ onSuccess, onError, onSwitchToLogin 
     setSuccess(false)
 
     try {
-      // TODO: Implement API call to request password reset
-      console.log("Password reset requested for:", email)
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      const response = await auth.requestPasswordReset(email)
+      console.log("Password reset requested:", response)
       
       setSuccess(true)
       onSuccess?.()
