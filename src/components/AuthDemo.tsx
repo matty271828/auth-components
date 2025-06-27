@@ -320,40 +320,7 @@ export default function AuthDemo() {
               lastName: "Doe",
               memberSince: "2024-01-15"
             }}
-            subscription={{
-              currentPlan: isSubscribed ? "premium" : "free",
-              status: "active",
-              nextBillingDate: isSubscribed ? "2024-02-15" : undefined,
-              amount: isSubscribed ? 12.99 : undefined,
-              currency: "GBP",
-              interval: "month"
-            }}
-            onUpgrade={() => {
-              setSuccessMessage("Upgrade process initiated successfully.")
-            }}
-            onCancel={() => {
-              setSuccessMessage("This would redirect to Stripe Customer Portal for cancellation")
-            }}
-            onManage={() => {
-              setSuccessMessage("This would redirect to Stripe Customer Portal")
-            }}
           />
-        )}
-
-        {/* Subscription State Toggle */}
-        {view === "accountSettings" && (
-          <Card className="border-gray-200 bg-gray-50">
-            <CardContent className="pt-6">
-              <div className="flex flex-wrap gap-2 justify-center">
-                <Button 
-                  onClick={() => setIsSubscribed(!isSubscribed)} 
-                  size="sm"
-                >
-                  {isSubscribed ? "Switch to Free" : "Switch to Premium"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         )}
       </div>
     </div>
