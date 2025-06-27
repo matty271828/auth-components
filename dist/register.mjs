@@ -1,9 +1,9 @@
 import "react/jsx-runtime";
 import "react";
-import "./label-Db0Mn0i9.js";
+import "./label-DZxY6bki.js";
 import "lucide-react";
-import "./auth-Cpt0z8EK.js";
-import { R } from "./RegistrationForm-BDPZG8Lo.js";
+import "./auth-GZFwuRYN.js";
+import { R } from "./RegistrationForm-hUZQ_Z4k.js";
 export {
   R as default
 };

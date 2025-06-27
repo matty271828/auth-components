@@ -1,10 +1,10 @@
 "use strict";
 const jsxRuntime = require("react/jsx-runtime");
 const react = require("react");
-const label = require("./label-PtsbujSm.cjs");
+const label = require("./label-BDT-IyrA.cjs");
 const CheckboxPrimitive = require("@radix-ui/react-checkbox");
 const lucideReact = require("lucide-react");
-const auth = require("./auth-DYYFK6MJ.cjs");
+const auth = require("./auth-BnxMxmAu.cjs");
 function _interopNamespaceDefault(e) {
   const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
   if (e) {
@@ -47,12 +47,14 @@ function Checkbox({
   );
 }
 function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToRegister }) {
+  const [view, setView] = react.useState("login");
   const [showPassword, setShowPassword] = react.useState(false);
   const [isLoading, setIsLoading] = react.useState(false);
   const [error, setError] = react.useState("");
   const [email, setEmail] = react.useState("");
   const [password, setPassword] = react.useState("");
   const [staySignedIn, setStaySignedIn] = react.useState(true);
+  const [resetSuccess, setResetSuccess] = react.useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -95,6 +97,90 @@ function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToRegister }) {
       setIsLoading(false);
     }
   };
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setError("Please enter your email address");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setResetSuccess(false);
+    try {
+      const response = await auth.auth.requestPasswordReset(email);
+      console.log("Password reset requested:", response);
+      setResetSuccess(true);
+    } catch (error2) {
+      const errorMessage = error2 instanceof Error ? error2.message : "Failed to send reset link";
+      setError(errorMessage);
+      onError == null ? void 0 : onError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleBackToLogin = () => {
+    setView("login");
+    setError("");
+    setResetSuccess(false);
+  };
+  if (view === "passwordReset") {
+    if (resetSuccess) {
+      return /* @__PURE__ */ jsxRuntime.jsxs(label.Card, { className: "w-full max-w-sm sm:max-w-md mx-auto border-none shadow-none", children: [
+        /* @__PURE__ */ jsxRuntime.jsxs(label.CardHeader, { className: "space-y-1 px-2 sm:px-6 pt-3 sm:pt-6", children: [
+          /* @__PURE__ */ jsxRuntime.jsx(label.CardTitle, { className: "text-base sm:text-xl lg:text-2xl font-bold text-center", children: "Check your inbox" }),
+          /* @__PURE__ */ jsxRuntime.jsx(label.CardDescription, { className: "text-center text-xs sm:text-sm lg:text-base", children: "A password reset link has been sent to your email address." })
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsx(label.CardFooter, { className: "flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6", children: /* @__PURE__ */ jsxRuntime.jsx(label.Button, { onClick: handleBackToLogin, className: "w-full h-9 sm:h-11 text-sm sm:text-base", children: "Back to Login" }) })
+      ] });
+    }
+    return /* @__PURE__ */ jsxRuntime.jsxs(label.Card, { className: "w-full max-w-sm sm:max-w-md mx-auto border-none shadow-none", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs(label.CardHeader, { className: "space-y-1 px-2 sm:px-6 pt-3 sm:pt-6", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(label.CardTitle, { className: "text-base sm:text-xl lg:text-2xl font-bold text-center", children: "Reset your password" }),
+        /* @__PURE__ */ jsxRuntime.jsx(label.CardDescription, { className: "text-center text-xs sm:text-sm lg:text-base", children: "Enter your email to receive a password reset link" })
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsxs("form", { onSubmit: handlePasswordReset, children: [
+        /* @__PURE__ */ jsxRuntime.jsxs(label.CardContent, { className: "space-y-2 sm:space-y-4 px-2 sm:px-6", children: [
+          error && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "p-2 text-xs sm:text-sm text-red-600 bg-red-50 border border-red-200 rounded-md", children: error }),
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "space-y-1 mb-4", children: [
+            /* @__PURE__ */ jsxRuntime.jsx(label.Label, { htmlFor: "resetEmail", className: "text-xs sm:text-sm lg:text-base", children: "Email" }),
+            /* @__PURE__ */ jsxRuntime.jsx(
+              label.Input,
+              {
+                id: "resetEmail",
+                name: "email",
+                type: "email",
+                placeholder: "john.doe@example.com",
+                value: email,
+                onChange: (e) => setEmail(e.target.value),
+                required: true,
+                disabled: isLoading,
+                className: "h-9 sm:h-11 text-base sm:text-base"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsxs(label.CardFooter, { className: "flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6", children: [
+          /* @__PURE__ */ jsxRuntime.jsx(label.Button, { type: "submit", className: "w-full h-9 sm:h-11 text-sm sm:text-base", disabled: isLoading, children: isLoading ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Loader2, { className: "mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" }),
+            "Sending..."
+          ] }) : "Send Reset Link" }),
+          /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "text-xs sm:text-sm text-center text-muted-foreground", children: [
+            "Remember your password?",
+            " ",
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: handleBackToLogin,
+                className: "text-primary hover:underline font-medium",
+                children: "Back to Login"
+              }
+            )
+          ] })
+        ] })
+      ] })
+    ] });
+  }
   return /* @__PURE__ */ jsxRuntime.jsxs(label.Card, { className: "w-full max-w-sm sm:max-w-md mx-auto border-none shadow-none", children: [
     /* @__PURE__ */ jsxRuntime.jsxs(label.CardHeader, { className: "space-y-1 px-2 sm:px-6 pt-3 sm:pt-6", children: [
       /* @__PURE__ */ jsxRuntime.jsx(label.CardTitle, { className: "text-base sm:text-xl lg:text-2xl font-bold text-center", children: "Welcome Back" }),
@@ -180,16 +266,27 @@ function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToRegister }) {
           /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Loader2, { className: "mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" }),
           "Signing in..."
         ] }) : "Sign In" }),
-        /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "text-xs sm:text-sm text-center text-muted-foreground", children: [
-          "Don't have an account?",
-          " ",
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "w-full flex justify-between items-center text-xs sm:text-sm", children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "text-muted-foreground", children: [
+            "Don't have an account?",
+            " ",
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: onSwitchToRegister,
+                className: "text-primary hover:underline font-medium",
+                children: "Create account"
+              }
+            )
+          ] }),
           /* @__PURE__ */ jsxRuntime.jsx(
             "button",
             {
               type: "button",
-              onClick: onSwitchToRegister,
+              onClick: () => setView("passwordReset"),
               className: "text-primary hover:underline font-medium",
-              children: "Create account"
+              children: "Forgot password?"
             }
           )
         ] })
@@ -199,4 +296,4 @@ function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToRegister }) {
 }
 exports.Checkbox = Checkbox;
 exports.LoginForm = LoginForm;
-//# sourceMappingURL=LoginForm-CmsJY1LU.cjs.map
+//# sourceMappingURL=LoginForm-CHW9ZTUy.cjs.map

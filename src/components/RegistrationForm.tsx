@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { auth } from "@/lib/auth"
-import type { User } from "@/lib/types"
+import type { User } from "../lib/types"
 import { validatePassword, isPasswordValid } from "@/lib/utils"
 import { PasswordStrengthIndicator } from "./ui/password-strength-indicator"
 

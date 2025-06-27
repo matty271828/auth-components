@@ -1,9 +1,9 @@
 "use strict";
 const jsxRuntime = require("react/jsx-runtime");
 const react = require("react");
-const label = require("./label-PtsbujSm.cjs");
+const label = require("./label-BDT-IyrA.cjs");
 const lucideReact = require("lucide-react");
-const auth = require("./auth-DYYFK6MJ.cjs");
+const auth = require("./auth-BnxMxmAu.cjs");
 function PasswordStrengthIndicator({
   strength,
   showRequirements = true,
@@ -316,4 +316,4 @@ function RegistrationForm({ onSuccess, onError, redirectUrl, onSwitchToLogin }) 
 }
 exports.PasswordStrengthIndicator = PasswordStrengthIndicator;
 exports.RegistrationForm = RegistrationForm;
-//# sourceMappingURL=RegistrationForm-CZIw3WHN.cjs.map
+//# sourceMappingURL=RegistrationForm-BJeQP3FZ.cjs.map

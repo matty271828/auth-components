@@ -93,7 +93,7 @@ export function useAuth(): UseAuthReturn {
       if (auth.isAuthenticated()) {
         setIsLoading(true);
         try {
-          await auth.validateSessionOnStartup();
+          await auth.validateSession();
           updateAuthState();
         } catch (error) {
           console.error('Startup session validation failed:', error);

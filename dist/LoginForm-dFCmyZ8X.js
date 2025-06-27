@@ -1,9 +1,9 @@
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
 import { useState } from "react";
-import { C as Card, d as CardHeader, e as CardTitle, b as CardDescription, a as CardContent, L as Label, I as Input, B as Button, c as CardFooter } from "./label-Db0Mn0i9.js";
+import { C as Card, a as CardHeader, b as CardTitle, c as CardDescription, d as CardFooter, B as Button, e as CardContent, L as Label, I as Input } from "./label-DZxY6bki.js";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import { CheckIcon, EyeOff, Eye, Loader2 } from "lucide-react";
-import { c as cn, a as auth } from "./auth-Cpt0z8EK.js";
+import { CheckIcon, Loader2, EyeOff, Eye } from "lucide-react";
+import { c as cn, a as auth } from "./auth-GZFwuRYN.js";
 function Checkbox({
   className,
   ...props
@@ -29,12 +29,14 @@ function Checkbox({
   );
 }
 function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToRegister }) {
+  const [view, setView] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [staySignedIn, setStaySignedIn] = useState(true);
+  const [resetSuccess, setResetSuccess] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -77,6 +79,90 @@ function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToRegister }) {
       setIsLoading(false);
     }
   };
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setError("Please enter your email address");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setResetSuccess(false);
+    try {
+      const response = await auth.requestPasswordReset(email);
+      console.log("Password reset requested:", response);
+      setResetSuccess(true);
+    } catch (error2) {
+      const errorMessage = error2 instanceof Error ? error2.message : "Failed to send reset link";
+      setError(errorMessage);
+      onError == null ? void 0 : onError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleBackToLogin = () => {
+    setView("login");
+    setError("");
+    setResetSuccess(false);
+  };
+  if (view === "passwordReset") {
+    if (resetSuccess) {
+      return /* @__PURE__ */ jsxs(Card, { className: "w-full max-w-sm sm:max-w-md mx-auto border-none shadow-none", children: [
+        /* @__PURE__ */ jsxs(CardHeader, { className: "space-y-1 px-2 sm:px-6 pt-3 sm:pt-6", children: [
+          /* @__PURE__ */ jsx(CardTitle, { className: "text-base sm:text-xl lg:text-2xl font-bold text-center", children: "Check your inbox" }),
+          /* @__PURE__ */ jsx(CardDescription, { className: "text-center text-xs sm:text-sm lg:text-base", children: "A password reset link has been sent to your email address." })
+        ] }),
+        /* @__PURE__ */ jsx(CardFooter, { className: "flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6", children: /* @__PURE__ */ jsx(Button, { onClick: handleBackToLogin, className: "w-full h-9 sm:h-11 text-sm sm:text-base", children: "Back to Login" }) })
+      ] });
+    }
+    return /* @__PURE__ */ jsxs(Card, { className: "w-full max-w-sm sm:max-w-md mx-auto border-none shadow-none", children: [
+      /* @__PURE__ */ jsxs(CardHeader, { className: "space-y-1 px-2 sm:px-6 pt-3 sm:pt-6", children: [
+        /* @__PURE__ */ jsx(CardTitle, { className: "text-base sm:text-xl lg:text-2xl font-bold text-center", children: "Reset your password" }),
+        /* @__PURE__ */ jsx(CardDescription, { className: "text-center text-xs sm:text-sm lg:text-base", children: "Enter your email to receive a password reset link" })
+      ] }),
+      /* @__PURE__ */ jsxs("form", { onSubmit: handlePasswordReset, children: [
+        /* @__PURE__ */ jsxs(CardContent, { className: "space-y-2 sm:space-y-4 px-2 sm:px-6", children: [
+          error && /* @__PURE__ */ jsx("div", { className: "p-2 text-xs sm:text-sm text-red-600 bg-red-50 border border-red-200 rounded-md", children: error }),
+          /* @__PURE__ */ jsxs("div", { className: "space-y-1 mb-4", children: [
+            /* @__PURE__ */ jsx(Label, { htmlFor: "resetEmail", className: "text-xs sm:text-sm lg:text-base", children: "Email" }),
+            /* @__PURE__ */ jsx(
+              Input,
+              {
+                id: "resetEmail",
+                name: "email",
+                type: "email",
+                placeholder: "john.doe@example.com",
+                value: email,
+                onChange: (e) => setEmail(e.target.value),
+                required: true,
+                disabled: isLoading,
+                className: "h-9 sm:h-11 text-base sm:text-base"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxs(CardFooter, { className: "flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6", children: [
+          /* @__PURE__ */ jsx(Button, { type: "submit", className: "w-full h-9 sm:h-11 text-sm sm:text-base", disabled: isLoading, children: isLoading ? /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" }),
+            "Sending..."
+          ] }) : "Send Reset Link" }),
+          /* @__PURE__ */ jsxs("p", { className: "text-xs sm:text-sm text-center text-muted-foreground", children: [
+            "Remember your password?",
+            " ",
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                onClick: handleBackToLogin,
+                className: "text-primary hover:underline font-medium",
+                children: "Back to Login"
+              }
+            )
+          ] })
+        ] })
+      ] })
+    ] });
+  }
   return /* @__PURE__ */ jsxs(Card, { className: "w-full max-w-sm sm:max-w-md mx-auto border-none shadow-none", children: [
     /* @__PURE__ */ jsxs(CardHeader, { className: "space-y-1 px-2 sm:px-6 pt-3 sm:pt-6", children: [
       /* @__PURE__ */ jsx(CardTitle, { className: "text-base sm:text-xl lg:text-2xl font-bold text-center", children: "Welcome Back" }),
@@ -162,16 +248,27 @@ function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToRegister }) {
           /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" }),
           "Signing in..."
         ] }) : "Sign In" }),
-        /* @__PURE__ */ jsxs("p", { className: "text-xs sm:text-sm text-center text-muted-foreground", children: [
-          "Don't have an account?",
-          " ",
+        /* @__PURE__ */ jsxs("div", { className: "w-full flex justify-between items-center text-xs sm:text-sm", children: [
+          /* @__PURE__ */ jsxs("p", { className: "text-muted-foreground", children: [
+            "Don't have an account?",
+            " ",
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                onClick: onSwitchToRegister,
+                className: "text-primary hover:underline font-medium",
+                children: "Create account"
+              }
+            )
+          ] }),
           /* @__PURE__ */ jsx(
             "button",
             {
               type: "button",
-              onClick: onSwitchToRegister,
+              onClick: () => setView("passwordReset"),
               className: "text-primary hover:underline font-medium",
-              children: "Create account"
+              children: "Forgot password?"
             }
           )
         ] })
@@ -183,4 +280,4 @@ export {
   Checkbox as C,
   LoginForm as L
 };
-//# sourceMappingURL=LoginForm-B5BHCTsi.js.map
+//# sourceMappingURL=LoginForm-dFCmyZ8X.js.map

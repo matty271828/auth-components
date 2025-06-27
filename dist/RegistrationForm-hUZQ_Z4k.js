@@ -1,8 +1,8 @@
 import { jsxs, jsx, Fragment } from "react/jsx-runtime";
 import { useState, useMemo } from "react";
-import { C as Card, d as CardHeader, e as CardTitle, b as CardDescription, a as CardContent, L as Label, I as Input, B as Button, c as CardFooter } from "./label-Db0Mn0i9.js";
+import { C as Card, a as CardHeader, b as CardTitle, c as CardDescription, e as CardContent, L as Label, I as Input, B as Button, d as CardFooter } from "./label-DZxY6bki.js";
 import { ChevronUp, ChevronDown, Check, X, EyeOff, Eye, Loader2 } from "lucide-react";
-import { v as validatePassword, i as isPasswordValid, a as auth } from "./auth-Cpt0z8EK.js";
+import { v as validatePassword, i as isPasswordValid, a as auth } from "./auth-GZFwuRYN.js";
 function PasswordStrengthIndicator({
   strength,
   showRequirements = true,
@@ -317,4 +317,4 @@ export {
   PasswordStrengthIndicator as P,
   RegistrationForm as R
 };
-//# sourceMappingURL=RegistrationForm-BDPZG8Lo.js.map
+//# sourceMappingURL=RegistrationForm-hUZQ_Z4k.js.map
