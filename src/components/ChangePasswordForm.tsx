@@ -50,6 +50,11 @@ export default function ChangePasswordForm({ onSuccess, onError, onSwitchToLogin
       return
     }
 
+    if (!token) {
+      setError("Reset token is required")
+      return
+    }
+
     setIsLoading(true)
     setError("")
     setSuccess(false)

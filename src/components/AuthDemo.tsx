@@ -252,7 +252,6 @@ export default function AuthDemo() {
             onSuccess={handleSuccess}
             onError={handleError}
             onSwitchToRegister={() => handleViewChange("register")}
-            onSwitchToPasswordReset={() => handleViewChange("forgotPassword")}
           />
         )}
         {view === "register" && (
