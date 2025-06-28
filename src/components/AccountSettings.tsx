@@ -18,7 +18,6 @@ import {
 } from "lucide-react"
 import api from "@/lib/api"
 import type { SubscriptionStatus } from "@/lib/types"
-import { getApiUrl } from "@/lib/utils"
 
 interface PlanFeature {
   name: string
