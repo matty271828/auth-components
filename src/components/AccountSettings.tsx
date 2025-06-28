@@ -152,7 +152,7 @@ export default function AccountSettings({
       const response = await api.createCheckoutSession({
         successUrl: `${window.location.origin}${window.location.pathname}?status=success`,
         cancelUrl: `${window.location.origin}${window.location.pathname}?status=cancelled`,
-        planId: "premium_monthly" // You can make this configurable
+        priceId: "premium_monthly" // You can make this configurable
       })
       
       // Redirect to Stripe Checkout

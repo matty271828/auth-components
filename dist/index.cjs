@@ -338,7 +338,7 @@ function AccountSettings({
       const response = await auth.api.createCheckoutSession({
         successUrl: `${window.location.origin}${window.location.pathname}?status=success`,
         cancelUrl: `${window.location.origin}${window.location.pathname}?status=cancelled`,
-        planId: "premium_monthly"
+        priceId: "premium_monthly"
         // You can make this configurable
       });
       window.location.href = response.url;

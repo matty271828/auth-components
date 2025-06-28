@@ -36,7 +36,7 @@ export interface SignupData {
 
 // Stripe-related types
 export interface CreateCheckoutSessionRequest {
-    planId?: string;
+    priceId?: string;
     successUrl: string;
     cancelUrl: string;
 }

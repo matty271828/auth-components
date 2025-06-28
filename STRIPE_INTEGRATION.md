@@ -117,7 +117,7 @@ The plan ID for checkout sessions can be configured in the `handleUpgrade` funct
 const response = await api.createCheckoutSession({
   successUrl: `${window.location.origin}${window.location.pathname}?status=success`,
   cancelUrl: `${window.location.origin}${window.location.pathname}?status=cancelled`,
-  planId: "premium_monthly" // Configure this based on your Stripe product setup
+  priceId: "premium_monthly" // Configure this based on your Stripe product setup
 })
 ```
 
