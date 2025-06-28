@@ -281,7 +281,7 @@ export default function AccountSettings({
               Account Details
             </CardTitle>
             <CardDescription>
-              Your account information and subscription status
+              Your account information
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -300,22 +300,6 @@ export default function AccountSettings({
                   <p className="text-sm text-muted-foreground">{formatDate(user.memberSince)}</p>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-medium">Status:</span>
-              <Badge 
-                variant={subscription?.status === "free" ? "default" : "secondary"}
-                className={`${statusConfig?.bgColor} ${statusConfig?.borderColor} ${statusConfig?.color}`}
-              >
-                <StatusIcon className="h-3 w-3 mr-1" />
-                {statusConfig?.text}
-              </Badge>
-              {subscription?.currentPlan === "standard" && (
-                <Badge variant="outline" className="ml-2">
-                  <Crown className="h-3 w-3 mr-1 text-yellow-500" />
-                  Standard
-                </Badge>
-              )}
             </div>
           </CardContent>
         </Card>
