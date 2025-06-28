@@ -258,10 +258,10 @@ export default function AccountSettings({
 
   return (
     <div className="bg-stone-50 pt-8 pb-8">
-      <div className={`w-full max-w-5xl mx-auto space-y-8 ${className || ""}`}> 
+      <div className={`w-full max-w-5xl mx-auto ${className || ""}`}> 
         {/* Account Details Card */}
-        <Card>
-          <CardHeader>
+        <Card className="mt-0">
+          <CardHeader className="pt-0">
             <CardTitle className="text-xl flex items-center gap-2">
               <User className="h-5 w-5" />
               Account Details
