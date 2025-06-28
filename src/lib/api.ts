@@ -364,25 +364,34 @@ const api = {
         }
 
         const data = await res.json();
+        console.log('🔧 Raw subscription API response:', data);
         
         // Map the API response to the expected SubscriptionStatus format
         if (data.success && data.subscription) {
             const subscription = data.subscription;
             
-            // Determine current plan based on status
-            const currentPlan: "free" | "standard" = subscription.status === "free" ? "free" : "standard";
+            // Map "active" status to "standard" for frontend compatibility
+            const status: "free" | "standard" | "cancelled" = 
+                subscription.status === "active" ? "standard" : 
+                subscription.status === "cancelled" ? "cancelled" : "free";
             
-            return {
+            // Determine current plan based on status
+            const currentPlan: "free" | "standard" = status === "free" ? "free" : "standard";
+            
+            const result: SubscriptionStatus = {
                 currentPlan,
-                status: subscription.status,
-                nextBillingDate: subscription.nextBillingDate,
-                amount: subscription.amount,
-                currency: subscription.currency,
-                interval: subscription.interval
+                status,
+                nextBillingDate: subscription.currentPeriodEnd,
+                // Note: amount, currency, interval are not provided by the current API
+                // These would need to be added to the backend response if needed
             };
+            
+            console.log('🔧 Mapped subscription status:', result);
+            return result;
         }
         
         // Fallback for unexpected response format
+        console.log('🔧 No subscription found, returning free plan');
         return {
             currentPlan: "free",
             status: "free"

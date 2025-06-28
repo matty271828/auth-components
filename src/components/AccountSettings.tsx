@@ -97,6 +97,7 @@ export default function AccountSettings({
   const fetchSubscriptionStatus = async () => {
     try {
       const status = await api.getSubscriptionStatus()
+      console.log('🔧 Subscription status received:', status)
       setSubscription(status)
       setError(null)
     } catch (err) {
@@ -128,6 +129,8 @@ export default function AccountSettings({
   const getStatusConfig = () => {
     if (!subscription) return null
     
+    console.log('🔧 Getting status config for subscription:', subscription)
+    
     switch (subscription.status) {
       case "free":
         return {
@@ -143,7 +146,7 @@ export default function AccountSettings({
           color: "text-yellow-500",
           bgColor: "bg-yellow-50",
           borderColor: "border-yellow-200",
-          text: "Standard"
+          text: "Membership: Active"
         }
       case "cancelled":
         return {
@@ -154,6 +157,17 @@ export default function AccountSettings({
           text: "Cancelled"
         }
       default:
+        // Fallback: check currentPlan if status is not recognized
+        console.log('🔧 Status not recognized, checking currentPlan:', subscription.currentPlan)
+        if (subscription.currentPlan === "standard") {
+          return {
+            icon: Crown,
+            color: "text-yellow-500",
+            bgColor: "bg-yellow-50",
+            borderColor: "border-yellow-200",
+            text: "Standard"
+          }
+        }
         return {
           icon: AlertCircle,
           color: "text-gray-500",
@@ -367,6 +381,68 @@ export default function AccountSettings({
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
                   {!priceId ? "Stripe integration is not configured. Please contact support." : "Secure payment via Stripe"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Subscription Management Section */}
+        {subscription?.currentPlan === "standard" && (
+          <Card className="m-4 sm:m-6">
+            <CardHeader>
+              <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Subscription Management
+              </CardTitle>
+              <CardDescription>
+                Manage your subscription and billing details
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Current Plan Info */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Current Plan:</span>
+                  <Badge variant="secondary" className="bg-yellow-50 border-yellow-200 text-yellow-700">
+                    <Crown className="h-3 w-3 mr-1" />
+                    Standard
+                  </Badge>
+                </div>
+                
+                {subscription.nextBillingDate && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Next Billing Date:</span>
+                    <span className="text-sm text-muted-foreground">
+                      {formatDate(subscription.nextBillingDate)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Manage Subscription Button */}
+              <div className="space-y-2">
+                <Button 
+                  onClick={handleManageSubscription}
+                  disabled={isLoading}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <Settings className="mr-2 h-4 w-4" />
+                      Manage Subscription
+                      <ArrowUpRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Update payment method, view invoices, or cancel subscription
                 </p>
               </div>
             </CardContent>
