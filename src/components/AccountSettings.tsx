@@ -31,7 +31,7 @@ interface UserDetails {
 
 interface AccountSettingsProps {
   user: UserDetails
-  premiumPlanFeatures?: PlanFeature[]
+  standardPlanFeatures?: PlanFeature[]
   freePlanFeatures?: PlanFeature[]
   className?: string
   successRedirectUrl: string
@@ -42,7 +42,7 @@ interface AccountSettingsProps {
 
 export default function AccountSettings({
   user,
-  premiumPlanFeatures = [
+  standardPlanFeatures: standardPlanFeatures = [
     { name: "Track Unlimited Problems (vs 5 on free)" },
     { name: "Build a Complete Study Portfolio" },
     { name: "Focus on Learning, Not Management" },
@@ -137,13 +137,13 @@ export default function AccountSettings({
           borderColor: "border-green-200",
           text: "Free Plan"
         }
-      case "premium":
+      case "standard":
         return {
           icon: Crown,
           color: "text-yellow-500",
           bgColor: "bg-yellow-50",
           borderColor: "border-yellow-200",
-          text: "Premium"
+          text: "Standard"
         }
       case "cancelled":
         return {
@@ -296,10 +296,10 @@ export default function AccountSettings({
                 <StatusIcon className="h-3 w-3 mr-1" />
                 {statusConfig?.text}
               </Badge>
-              {subscription?.currentPlan === "premium" && (
+              {subscription?.currentPlan === "standard" && (
                 <Badge variant="outline" className="ml-2">
                   <Crown className="h-3 w-3 mr-1 text-yellow-500" />
-                  Premium
+                  Standard
                 </Badge>
               )}
             </div>
@@ -312,7 +312,7 @@ export default function AccountSettings({
             <CardHeader>
               <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
                 <Crown className="h-5 w-5 text-yellow-500" />
-                Upgrade to Premium
+                Become a Member
               </CardTitle>
               <CardDescription>
                 Get unlimited problem tracking and advanced features
@@ -331,7 +331,7 @@ export default function AccountSettings({
               <div className="space-y-3">
                 <h4 className="font-semibold text-slate-900">What you'll get:</h4>
                 <ul className="space-y-2">
-                  {premiumPlanFeatures.map((feature, index) => (
+                  {standardPlanFeatures.map((feature, index) => (
                     <li key={index} className="flex items-start gap-3 text-sm">
                       <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
                       <span>{feature.name}</span>

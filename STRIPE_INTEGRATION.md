@@ -15,7 +15,7 @@ The AccountSettings component now integrates with Stripe payment endpoints to ha
 ### 1. Create Checkout Session
 - **Endpoint**: `POST /auth/create-checkout-session`
 - **Purpose**: Creates a Stripe Checkout session for new subscriptions
-- **Usage**: When users want to upgrade from free to premium
+- **Usage**: When users want to upgrade from free to standard
 - **Redirects**:
   - `successUrl` - Where users are redirected after successful payment
   - `cancelUrl` - Where users are redirected if they cancel the payment
@@ -30,7 +30,7 @@ The AccountSettings component now integrates with Stripe payment endpoints to ha
 ### 3. Get Subscription Status
 - **Endpoint**: `GET /auth/subscription`
 - **Purpose**: Retrieves the current subscription status for a user
-- **Usage**: To check if user has free, premium, cancelled, or past_due status
+- **Usage**: To check if user has free, standard, cancelled, or past_due status
 
 ## Implementation Details
 
@@ -117,7 +117,7 @@ The plan ID for checkout sessions can be configured in the `handleUpgrade` funct
 const response = await api.createCheckoutSession({
   successUrl: `${window.location.origin}${window.location.pathname}?status=success`,
   cancelUrl: `${window.location.origin}${window.location.pathname}?status=cancelled`,
-  priceId: "premium_monthly" // Configure this based on your Stripe product setup
+  priceId: `<STRIPE_PRICE_ID>` // Configure this based on your Stripe product setup
 })
 ```
 

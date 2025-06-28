@@ -370,7 +370,7 @@ const api = {
             const subscription = data.subscription;
             
             // Determine current plan based on status
-            const currentPlan: "free" | "premium" = subscription.status === "free" ? "free" : "premium";
+            const currentPlan: "free" | "standard" = subscription.status === "free" ? "free" : "standard";
             
             return {
                 currentPlan,
