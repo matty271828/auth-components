@@ -59,8 +59,8 @@ export default function AccountSettings({
 
   // Validate priceId on component mount
   useEffect(() => {
-    if (!priceId || priceId === 'fallback_price_id') {
-      console.warn("Invalid or missing Stripe price ID. Stripe integration will be disabled.");
+    if (!priceId) {
+      console.warn("Stripe price ID is not configured. Stripe integration will be disabled.");
       setError("Stripe integration is not properly configured. Please contact support.");
     }
   }, [priceId])
@@ -158,7 +158,7 @@ export default function AccountSettings({
 
   const handleUpgrade = async () => {
     // Validate priceId before proceeding
-    if (!priceId || priceId === 'fallback_price_id') {
+    if (!priceId) {
       setError("Stripe integration is not properly configured. Please contact support.")
       return
     }
@@ -168,6 +168,16 @@ export default function AccountSettings({
     setSuccessMessage(null)
     
     try {
+      // Debug logging
+      console.log('🔧 Creating checkout session with:', {
+        priceId,
+        successRedirectUrl,
+        cancelRedirectUrl,
+        priceIdType: typeof priceId,
+        successUrlType: typeof successRedirectUrl,
+        cancelUrlType: typeof cancelRedirectUrl
+      })
+
       // Create checkout session with proper redirect URLs
       const response = await api.createCheckoutSession({
         successUrl: successRedirectUrl!,
@@ -175,10 +185,24 @@ export default function AccountSettings({
         priceId: priceId
       })
       
+      console.log('🔧 Checkout session response:', response)
+      
+      // Check if response has a valid URL
+      if (!response || !response.url) {
+        throw new Error(`Invalid response from server: ${JSON.stringify(response)}`)
+      }
+      
+      console.log('🔧 Redirecting to Stripe URL:', response.url)
+      
       // Redirect to Stripe Checkout
       window.location.href = response.url
     } catch (err) {
-      console.error("Failed to create checkout session:", err)
+      console.error("🔧 Failed to create checkout session:", err)
+      console.error("🔧 Error details:", {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
+        error: err
+      })
       setError("Failed to start upgrade process. Please try again.")
     } finally {
       setIsLoading(false)
@@ -335,7 +359,7 @@ export default function AccountSettings({
 
             <Button 
               onClick={handleUpgrade}
-              disabled={isLoading || !priceId || priceId === 'fallback_price_id'}
+              disabled={isLoading || !priceId}
               className="w-full h-9 sm:h-11 text-sm sm:text-base"
             >
               {isLoading ? (
@@ -343,7 +367,7 @@ export default function AccountSettings({
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Processing...
                 </>
-              ) : !priceId || priceId === 'fallback_price_id' ? (
+              ) : !priceId ? (
                 <>
                   <AlertCircle className="mr-2 h-4 w-4" />
                   Stripe Not Configured
@@ -357,10 +381,7 @@ export default function AccountSettings({
               )}
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-1">
-              {!priceId || priceId === 'fallback_price_id' 
-                ? "Stripe integration is not configured. Please contact support."
-                : "You'll be redirected to Stripe to complete your payment"
-              }
+              {!priceId ? "Stripe integration is not configured. Please contact support." : "You'll be redirected to Stripe to complete your payment"}
             </p>
           </CardContent>
         </Card>

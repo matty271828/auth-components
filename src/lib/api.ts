@@ -294,6 +294,9 @@ const api = {
             throw new Error("User not authenticated");
         }
 
+        console.log('🔧 API: Creating checkout session with request:', request);
+        console.log('🔧 API: Authentication token present:', !!token);
+
         const res = await fetch(`${getApiUrl()}/auth/create-checkout-session`, {
             method: "POST",
             headers: {
@@ -303,11 +306,19 @@ const api = {
             body: JSON.stringify(request),
         });
 
+        console.log('🔧 API: Response status:', res.status);
+        console.log('🔧 API: Response headers:', Object.fromEntries(res.headers.entries()));
+
         if (!res.ok) {
-            throw new Error("Failed to create checkout session");
+            const errorText = await res.text();
+            console.error('🔧 API: Error response body:', errorText);
+            throw new Error(`Failed to create checkout session: ${res.status} ${res.statusText}`);
         }
 
-        return res.json();
+        const responseData = await res.json();
+        console.log('🔧 API: Response data:', responseData);
+        
+        return responseData;
     },
 
     async createPortalSession(
