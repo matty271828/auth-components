@@ -321,7 +321,7 @@ export default function AuthDemo() {
             successRedirectUrl={`${getApiUrl()}?status=success`}
             cancelRedirectUrl={`${getApiUrl()}?status=cancelled`}
             returnRedirectUrl={getApiUrl()}
-            priceId={import.meta.env.VITE_STRIPE_PRICE_ID}
+            priceId={import.meta.env.VITE_STRIPE_PRICE_ID || 'fallback_price_id'}
           />
         )}
       </div>

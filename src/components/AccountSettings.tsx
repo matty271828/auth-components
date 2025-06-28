@@ -58,6 +58,14 @@ export default function AccountSettings({
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
+  // Validate priceId on component mount
+  useEffect(() => {
+    if (!priceId || priceId === 'fallback_price_id') {
+      console.warn("Invalid or missing Stripe price ID. Stripe integration will be disabled.");
+      setError("Stripe integration is not properly configured. Please contact support.");
+    }
+  }, [priceId])
+
   // Check for redirect status on component mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
@@ -150,6 +158,12 @@ export default function AccountSettings({
   }
 
   const handleUpgrade = async () => {
+    // Validate priceId before proceeding
+    if (!priceId || priceId === 'fallback_price_id') {
+      setError("Stripe integration is not properly configured. Please contact support.")
+      return
+    }
+
     setIsLoading(true)
     setError(null)
     setSuccessMessage(null)
@@ -322,13 +336,18 @@ export default function AccountSettings({
 
             <Button 
               onClick={handleUpgrade}
-              disabled={isLoading}
+              disabled={isLoading || !priceId || priceId === 'fallback_price_id'}
               className="w-full h-9 sm:h-11 text-sm sm:text-base"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Processing...
+                </>
+              ) : !priceId || priceId === 'fallback_price_id' ? (
+                <>
+                  <AlertCircle className="mr-2 h-4 w-4" />
+                  Stripe Not Configured
                 </>
               ) : (
                 <>
@@ -339,7 +358,10 @@ export default function AccountSettings({
               )}
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-1">
-              You'll be redirected to Stripe to complete your payment
+              {!priceId || priceId === 'fallback_price_id' 
+                ? "Stripe integration is not configured. Please contact support."
+                : "You'll be redirected to Stripe to complete your payment"
+              }
             </p>
           </CardContent>
         </Card>
