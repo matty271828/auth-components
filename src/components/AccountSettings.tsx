@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import api from "@/lib/api"
 import type { SubscriptionStatus } from "@/lib/types"
+import { getApiUrl } from "@/lib/utils"
 
 interface PlanFeature {
   name: string
@@ -26,8 +27,6 @@ interface PlanFeature {
 
 interface UserDetails {
   email: string
-  firstName: string
-  lastName: string
   memberSince: string
 }
 
@@ -35,6 +34,10 @@ interface AccountSettingsProps {
   user: UserDetails
   premiumPlanFeatures?: PlanFeature[]
   className?: string
+  successRedirectUrl: string
+  cancelRedirectUrl: string
+  returnRedirectUrl: string
+  priceId: string
 }
 
 export default function AccountSettings({
@@ -44,7 +47,11 @@ export default function AccountSettings({
     { name: "Advanced analytics" },
     { name: "Priority support" }
   ],
-  className
+  className,
+  successRedirectUrl,
+  cancelRedirectUrl,
+  returnRedirectUrl,
+  priceId
 }: AccountSettingsProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null)
@@ -150,9 +157,9 @@ export default function AccountSettings({
     try {
       // Create checkout session with proper redirect URLs
       const response = await api.createCheckoutSession({
-        successUrl: `${window.location.origin}${window.location.pathname}?status=success`,
-        cancelUrl: `${window.location.origin}${window.location.pathname}?status=cancelled`,
-        priceId: "premium_monthly" // You can make this configurable
+        successUrl: successRedirectUrl!,
+        cancelUrl: cancelRedirectUrl!,
+        priceId: priceId
       })
       
       // Redirect to Stripe Checkout
@@ -173,7 +180,7 @@ export default function AccountSettings({
     try {
       // Create portal session with return URL
       const response = await api.createPortalSession({
-        returnUrl: `${window.location.origin}${window.location.pathname}`
+        returnUrl: returnRedirectUrl!
       })
       
       // Redirect to Stripe Customer Portal

@@ -13,6 +13,7 @@ import AccountSettings from "./AccountSettings"
 import { auth } from "@/lib/auth"
 import { useAuth } from "@/lib/useAuth"
 import type { User } from "@/lib/auth"
+import { getApiUrl } from "@/lib/utils"
 
 type AuthView = "login" | "register" | "forgotPassword" | "changePassword" | "verifyEmail" | "accountSettings"
 
@@ -315,10 +316,12 @@ export default function AuthDemo() {
           <AccountSettings
             user={{
               email: "john.doe@example.com",
-              firstName: "John",
-              lastName: "Doe",
               memberSince: "2024-01-15"
             }}
+            successRedirectUrl={`${getApiUrl()}?status=success`}
+            cancelRedirectUrl={`${getApiUrl()}?status=cancelled`}
+            returnRedirectUrl={getApiUrl()}
+            priceId={import.meta.env.VITE_STRIPE_PRICE_ID}
           />
         )}
       </div>
