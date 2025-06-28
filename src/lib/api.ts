@@ -288,7 +288,7 @@ const api = {
     // Stripe API calls
     async createCheckoutSession(
         request: CreateCheckoutSessionRequest
-    ): Promise<{ url: string }> {
+    ): Promise<{ url: string; checkoutUrl?: string }> {
         const token = getAuthToken();
         if (!token) {
             throw new Error("User not authenticated");

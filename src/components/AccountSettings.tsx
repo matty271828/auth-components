@@ -187,15 +187,16 @@ export default function AccountSettings({
       
       console.log('🔧 Checkout session response:', response)
       
-      // Check if response has a valid URL
-      if (!response || !response.url) {
+      // Check if response has a valid URL (handle both 'url' and 'checkoutUrl' properties)
+      const checkoutUrl = response.url || response.checkoutUrl
+      if (!response || !checkoutUrl) {
         throw new Error(`Invalid response from server: ${JSON.stringify(response)}`)
       }
       
-      console.log('🔧 Redirecting to Stripe URL:', response.url)
+      console.log('🔧 Redirecting to Stripe URL:', checkoutUrl)
       
       // Redirect to Stripe Checkout
-      window.location.href = response.url
+      window.location.href = checkoutUrl
     } catch (err) {
       console.error("🔧 Failed to create checkout session:", err)
       console.error("🔧 Error details:", {
