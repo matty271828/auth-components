@@ -32,6 +32,7 @@ interface UserDetails {
 interface AccountSettingsProps {
   user: UserDetails
   premiumPlanFeatures?: PlanFeature[]
+  freePlanFeatures?: PlanFeature[]
   className?: string
   successRedirectUrl: string
   cancelRedirectUrl: string
@@ -42,9 +43,16 @@ interface AccountSettingsProps {
 export default function AccountSettings({
   user,
   premiumPlanFeatures = [
-    { name: "Unlimited projects" },
-    { name: "Advanced analytics" },
-    { name: "Priority support" }
+    { name: "Track Unlimited Problems (vs 5 on free)" },
+    { name: "Build a Complete Study Portfolio" },
+    { name: "Focus on Learning, Not Management" },
+    { name: "Master All Problem Patterns" },
+    { name: "Advanced SM-2 Spaced Repetition" }
+  ],
+  freePlanFeatures = [
+    { name: "Track up to 5 problems" },
+    { name: "Basic spaced repetition algorithm" },
+    { name: "Standard support" }
   ],
   className,
   successRedirectUrl,
@@ -249,211 +257,165 @@ export default function AccountSettings({
   const StatusIcon = statusConfig?.icon || AlertCircle
 
   return (
-    <div className={`w-full max-w-md mx-auto space-y-6 ${className || ""}`}>
-      {/* Success Message */}
-      {successMessage && (
-        <Card className="border-green-200 bg-green-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-green-800">
-              <CheckCircle className="h-4 w-4" />
-              <span className="text-sm">{successMessage}</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-red-800">
-              <AlertCircle className="h-4 w-4" />
-              <span className="text-sm">{error}</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* User Details Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Account Details
-          </CardTitle>
-          <CardDescription>
-            Your account information and subscription status
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* User Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-3">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">Email</p>
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">Member Since</p>
-                <p className="text-sm text-muted-foreground">{formatDate(user.memberSince)}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Subscription Status Badge */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Status:</span>
-            <Badge 
-              variant={subscription.status === "free" ? "default" : "secondary"}
-              className={`${statusConfig?.bgColor} ${statusConfig?.borderColor} ${statusConfig?.color}`}
-            >
-              <StatusIcon className="h-3 w-3 mr-1" />
-              {statusConfig?.text}
-            </Badge>
-            {subscription.currentPlan === "premium" && (
-              <Badge variant="outline" className="ml-2">
-                <Crown className="h-3 w-3 mr-1 text-yellow-500" />
-                Premium
-              </Badge>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Subscription Management */}
-      {subscription.currentPlan === "free" ? (
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Crown className="h-5 w-5 text-yellow-500" />
-              Subscribe Now
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Premium Plan Card */}
-            <Card className="border-primary">
-              <CardHeader className="pb-3">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold">
-                    {formatPrice(12.99, "GBP")}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    /month
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="space-y-2">
-                  {premiumPlanFeatures.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span>{feature.name}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Button 
-              onClick={handleUpgrade}
-              disabled={isLoading || !priceId}
-              className="w-full h-9 sm:h-11 text-sm sm:text-base"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : !priceId ? (
-                <>
-                  <AlertCircle className="mr-2 h-4 w-4" />
-                  Stripe Not Configured
-                </>
-              ) : (
-                <>
-                  <Crown className="mr-2 h-4 w-4" />
-                  Upgrade Now
-                  <ArrowUpRight className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
-            <p className="text-xs text-muted-foreground text-center mt-1">
-              {!priceId ? "Stripe integration is not configured. Please contact support." : "You'll be redirected to Stripe to complete your payment"}
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
+    <div className="bg-stone-50 pt-8 pb-8">
+      <div className={`w-full max-w-5xl mx-auto space-y-8 ${className || ""}`}> 
+        {/* Account Details Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Crown className="h-5 w-5 text-yellow-500" />
-              Subscription Management
+            <CardTitle className="text-xl flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Account Details
             </CardTitle>
+            <CardDescription>
+              Your account information and subscription status
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Plan Details */}
-            <div className="space-y-3">
-              {subscription.amount && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Billing amount:</span>
-                  <span className="font-medium">
-                    {formatPrice(subscription.amount, subscription.currency || "GBP")}/{subscription.interval}
-                  </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center gap-3">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Email</p>
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
-              )}
-              
-              {subscription.nextBillingDate && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Next billing:</span>
-                  <span className="font-medium flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {formatDate(subscription.nextBillingDate)}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Plan Features Summary */}
-            <div className="p-3 bg-muted/50 rounded-md">
-              <h4 className="font-medium text-sm mb-2">Plan Features:</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                {premiumPlanFeatures.map((feature, index) => (
-                  <li key={index}>• {feature.name}</li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button 
-                variant="outline"
-                onClick={handleManageSubscription}
-                disabled={isLoading}
-                className="flex-1 h-9 sm:h-10"
-              >
-                {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Settings className="mr-2 h-4 w-4" />
-                )}
-                Manage Subscription
-              </Button>
-            </div>
-
-            {subscription.status === "cancelled" && (
-              <div className="w-full p-3 bg-orange-50 border border-orange-200 rounded-md">
-                <p className="text-sm text-orange-800">
-                  Your subscription has been cancelled. You'll lose access on {subscription.nextBillingDate ? formatDate(subscription.nextBillingDate) : "your next billing date"}.
-                </p>
               </div>
-            )}
+              <div className="flex items-center gap-3">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Member Since</p>
+                  <p className="text-sm text-muted-foreground">{formatDate(user.memberSince)}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Status:</span>
+              <Badge 
+                variant={subscription?.status === "free" ? "default" : "secondary"}
+                className={`${statusConfig?.bgColor} ${statusConfig?.borderColor} ${statusConfig?.color}`}
+              >
+                <StatusIcon className="h-3 w-3 mr-1" />
+                {statusConfig?.text}
+              </Badge>
+              {subscription?.currentPlan === "premium" && (
+                <Badge variant="outline" className="ml-2">
+                  <Crown className="h-3 w-3 mr-1 text-yellow-500" />
+                  Premium
+                </Badge>
+              )}
+            </div>
           </CardContent>
         </Card>
-      )}
+
+        {/* Subscribe Section */}
+        {subscription?.currentPlan === "free" && (
+          <Card className="max-w-5xl mx-auto">
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <Crown className="h-5 w-5 text-yellow-500" />
+                Subscribe
+              </CardTitle>
+              <CardDescription>
+                Compare plans and upgrade when you're ready
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Plans Comparison */}
+              <div className="grid lg:grid-cols-2 gap-4">
+                {/* Current Plan */}
+                <Card className="border-2 border-slate-200">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Current Plan
+                        </CardTitle>
+                        <CardDescription>Free</CardDescription>
+                      </div>
+                      <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
+                        Active
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <ul className="space-y-2">
+                      {freePlanFeatures.map((feature, index) => (
+                        <li key={index} className="flex items-center gap-2 text-sm">
+                          <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                          <span>{feature.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+                {/* Membership Plan */}
+                <Card className="border-2 border-primary relative">
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-primary text-primary-foreground px-3 py-1">
+                      Recommended
+                    </Badge>
+                  </div>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Crown className="h-4 w-4 text-yellow-500" />
+                          Membership
+                        </CardTitle>
+                        <CardDescription>
+                          <span className="text-2xl font-bold">
+                            {formatPrice(12.99, "GBP")}
+                          </span>
+                          <span className="text-sm text-muted-foreground">/month</span>
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <ul className="space-y-2">
+                      {premiumPlanFeatures.map((feature, index) => (
+                        <li key={index} className="flex items-center gap-2 text-sm">
+                          <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                          <span>{feature.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+              {/* Upgrade Button */}
+              <div className="text-center">
+                <Button 
+                  onClick={handleUpgrade}
+                  disabled={isLoading || !priceId}
+                  className="w-full max-w-md h-11 text-base"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : !priceId ? (
+                    <>
+                      <AlertCircle className="mr-2 h-4 w-4" />
+                      Stripe Not Configured
+                    </>
+                  ) : (
+                    <>
+                      <Crown className="mr-2 h-4 w-4" />
+                      Upgrade to Membership
+                      <ArrowUpRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  {!priceId ? "Stripe integration is not configured. Please contact support." : "You'll be redirected to Stripe to complete your payment"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   )
 } 
