@@ -237,11 +237,6 @@ const api = {
             
             // Handle the response format with success, message, and token fields
             if (data.success && data.token) {
-                console.log('🔧 CSRF token received:', {
-                    success: data.success,
-                    message: data.message,
-                    tokenLength: data.token.length
-                });
                 return data.token;
             } else {
                 throw new Error(`Invalid CSRF token response: ${data.message || 'No token in response'}`);
@@ -295,9 +290,6 @@ const api = {
             throw new Error("User not authenticated");
         }
 
-        console.log('🔧 API: Creating checkout session with request:', request);
-        console.log('🔧 API: Authentication token present:', !!token);
-
         const res = await fetch(`${getApiUrl()}/auth/create-checkout-session`, {
             method: "POST",
             headers: {
@@ -307,17 +299,13 @@ const api = {
             body: JSON.stringify(request),
         });
 
-        console.log('🔧 API: Response status:', res.status);
-        console.log('🔧 API: Response headers:', Object.fromEntries(res.headers.entries()));
-
         if (!res.ok) {
             const errorText = await res.text();
-            console.error('🔧 API: Error response body:', errorText);
+            console.error('Failed to create checkout session:', errorText);
             throw new Error(`Failed to create checkout session: ${res.status} ${res.statusText}`);
         }
 
         const responseData = await res.json();
-        console.log('🔧 API: Response data:', responseData);
         
         return responseData;
     },
@@ -330,10 +318,6 @@ const api = {
             throw new Error("User not authenticated");
         }
 
-        console.log('🔧 API: Creating portal session with request:', request);
-        console.log('🔧 API: Authentication token present:', !!token);
-        console.log('🔧 API: Making request to:', `${getApiUrl()}/auth/create-portal-session`);
-
         const res = await fetch(`${getApiUrl()}/auth/create-portal-session`, {
             method: "POST",
             headers: {
@@ -343,28 +327,13 @@ const api = {
             body: JSON.stringify(request),
         });
 
-        console.log('🔧 API: Portal response status:', res.status);
-        console.log('🔧 API: Portal response status text:', res.statusText);
-        console.log('🔧 API: Portal response headers:', Object.fromEntries(res.headers.entries()));
-
         if (!res.ok) {
             const errorText = await res.text();
-            console.error('🔧 API: Portal error response body:', errorText);
+            console.error('Failed to create portal session:', errorText);
             throw new Error(`Failed to create portal session: ${res.status} ${res.statusText}`);
         }
 
-        // Try to get response text first to debug
-        const responseText = await res.text();
-        console.log('🔧 API: Portal raw response text:', responseText);
-        
-        let responseData: CreatePortalSessionResponse;
-        try {
-            responseData = JSON.parse(responseText);
-            console.log('🔧 API: Portal parsed response data:', responseData);
-        } catch (parseError) {
-            console.error('🔧 API: Failed to parse portal response as JSON:', parseError);
-            throw new Error('Invalid JSON response from portal session API');
-        }
+        const responseData: CreatePortalSessionResponse = await res.json();
         
         // Map the backend response format to the expected frontend format
         return { url: responseData.portalUrl };
@@ -376,10 +345,6 @@ const api = {
             throw new Error("User not authenticated");
         }
 
-        console.log('🔧 API: Getting subscription status');
-        console.log('🔧 API: Authentication token present:', !!token);
-        console.log('🔧 API: Making request to:', `${getApiUrl()}/auth/subscription`);
-
         const res = await fetch(`${getApiUrl()}/auth/subscription`, {
             method: "GET",
             headers: {
@@ -388,30 +353,13 @@ const api = {
             },
         });
 
-        console.log('🔧 API: Subscription response status:', res.status);
-        console.log('🔧 API: Subscription response status text:', res.statusText);
-        console.log('🔧 API: Subscription response headers:', Object.fromEntries(res.headers.entries()));
-
         if (!res.ok) {
             const errorText = await res.text();
-            console.error('🔧 API: Subscription error response body:', errorText);
+            console.error('Failed to get subscription status:', errorText);
             throw new Error(`Failed to get subscription status: ${res.status} ${res.statusText}`);
         }
 
-        // Try to get response text first to debug
-        const responseText = await res.text();
-        console.log('🔧 API: Subscription raw response text:', responseText);
-        
-        let data;
-        try {
-            data = JSON.parse(responseText);
-            console.log('🔧 API: Subscription parsed response data:', data);
-        } catch (parseError) {
-            console.error('🔧 API: Failed to parse subscription response as JSON:', parseError);
-            throw new Error('Invalid JSON response from subscription API');
-        }
-        
-        console.log('🔧 Raw subscription API response:', data);
+        const data = await res.json();
         
         // Map the API response to the expected SubscriptionStatus format
         if (data.success && data.subscription) {
@@ -433,12 +381,10 @@ const api = {
                 // These would need to be added to the backend response if needed
             };
             
-            console.log('🔧 Mapped subscription status:', result);
             return result;
         }
         
         // Fallback for unexpected response format
-        console.log('🔧 No subscription found, returning free plan');
         return {
             currentPlan: "free",
             status: "free"

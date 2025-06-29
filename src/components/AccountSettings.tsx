@@ -97,7 +97,6 @@ export default function AccountSettings({
   const fetchSubscriptionStatus = async () => {
     try {
       const status = await api.getSubscriptionStatus()
-      console.log('🔧 Subscription status received:', status)
       setSubscription(status)
       setError(null)
     } catch (err) {
@@ -129,8 +128,6 @@ export default function AccountSettings({
   const getStatusConfig = () => {
     if (!subscription) return null
     
-    console.log('🔧 Getting status config for subscription:', subscription)
-    
     switch (subscription.status) {
       case "free":
         return {
@@ -158,7 +155,6 @@ export default function AccountSettings({
         }
       default:
         // Fallback: check currentPlan if status is not recognized
-        console.log('🔧 Status not recognized, checking currentPlan:', subscription.currentPlan)
         if (subscription.currentPlan === "standard") {
           return {
             icon: Crown,
@@ -190,16 +186,6 @@ export default function AccountSettings({
     setSuccessMessage(null)
     
     try {
-      // Debug logging
-      console.log('🔧 Creating checkout session with:', {
-        priceId,
-        successRedirectUrl,
-        cancelRedirectUrl,
-        priceIdType: typeof priceId,
-        successUrlType: typeof successRedirectUrl,
-        cancelUrlType: typeof cancelRedirectUrl
-      })
-
       // Create checkout session with proper redirect URLs
       const response = await api.createCheckoutSession({
         successUrl: successRedirectUrl!,
@@ -207,25 +193,16 @@ export default function AccountSettings({
         priceId: priceId
       })
       
-      console.log('🔧 Checkout session response:', response)
-      
       // Check if response has a valid URL (handle both 'url' and 'checkoutUrl' properties)
       const checkoutUrl = response.url || response.checkoutUrl
       if (!response || !checkoutUrl) {
         throw new Error(`Invalid response from server: ${JSON.stringify(response)}`)
       }
       
-      console.log('🔧 Redirecting to Stripe URL:', checkoutUrl)
-      
       // Redirect to Stripe Checkout
       window.location.href = checkoutUrl
     } catch (err) {
-      console.error("🔧 Failed to create checkout session:", err)
-      console.error("🔧 Error details:", {
-        message: err instanceof Error ? err.message : 'Unknown error',
-        stack: err instanceof Error ? err.stack : undefined,
-        error: err
-      })
+      console.error("Failed to create checkout session:", err)
       setError("Failed to start upgrade process. Please try again.")
     } finally {
       setIsLoading(false)
@@ -238,29 +215,19 @@ export default function AccountSettings({
     setSuccessMessage(null)
     
     try {
-      // Debug logging
-      console.log('🔧 Creating portal session with returnRedirectUrl:', returnRedirectUrl)
-      
       // Validate returnRedirectUrl and provide fallback
       const returnUrl = returnRedirectUrl || window.location.origin
-      console.log('🔧 Using return URL:', returnUrl)
       
       // Create portal session with return URL
       const response = await api.createPortalSession({
         returnUrl: returnUrl
       })
       
-      console.log('🔧 Portal session response:', response)
-      console.log('🔧 Response type:', typeof response)
-      console.log('🔧 Response keys:', Object.keys(response))
-      console.log('🔧 Response URL:', response.url)
-      
       if (!response.url) {
         throw new Error('No URL received in portal session response')
       }
       
       // Redirect to Stripe Customer Portal
-      console.log('🔧 Redirecting to:', response.url)
       window.location.href = response.url
     } catch (err) {
       console.error("Failed to create portal session:", err)
