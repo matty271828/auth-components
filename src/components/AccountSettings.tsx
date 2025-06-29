@@ -238,12 +238,29 @@ export default function AccountSettings({
     setSuccessMessage(null)
     
     try {
+      // Debug logging
+      console.log('🔧 Creating portal session with returnRedirectUrl:', returnRedirectUrl)
+      
+      // Validate returnRedirectUrl and provide fallback
+      const returnUrl = returnRedirectUrl || window.location.origin
+      console.log('🔧 Using return URL:', returnUrl)
+      
       // Create portal session with return URL
       const response = await api.createPortalSession({
-        returnUrl: returnRedirectUrl!
+        returnUrl: returnUrl
       })
       
+      console.log('🔧 Portal session response:', response)
+      console.log('🔧 Response type:', typeof response)
+      console.log('🔧 Response keys:', Object.keys(response))
+      console.log('🔧 Response URL:', response.url)
+      
+      if (!response.url) {
+        throw new Error('No URL received in portal session response')
+      }
+      
       // Redirect to Stripe Customer Portal
+      console.log('🔧 Redirecting to:', response.url)
       window.location.href = response.url
     } catch (err) {
       console.error("Failed to create portal session:", err)

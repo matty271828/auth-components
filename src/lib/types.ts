@@ -45,6 +45,11 @@ export interface CreatePortalSessionRequest {
     returnUrl: string;
 }
 
+export interface CreatePortalSessionResponse {
+    success: boolean;
+    portalUrl: string;
+}
+
 export interface SubscriptionStatus {
     currentPlan: "free" | "standard";
     status: "free" | "standard" | "cancelled";

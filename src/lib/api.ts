@@ -5,7 +5,8 @@ import type {
     LoginData,
     SignupData,
     AuthResponse,
-    User
+    User,
+    CreatePortalSessionResponse
 } from "./types";
 import { getApiUrl } from "./utils";
 
@@ -329,6 +330,10 @@ const api = {
             throw new Error("User not authenticated");
         }
 
+        console.log('🔧 API: Creating portal session with request:', request);
+        console.log('🔧 API: Authentication token present:', !!token);
+        console.log('🔧 API: Making request to:', `${getApiUrl()}/auth/create-portal-session`);
+
         const res = await fetch(`${getApiUrl()}/auth/create-portal-session`, {
             method: "POST",
             headers: {
@@ -338,11 +343,31 @@ const api = {
             body: JSON.stringify(request),
         });
 
+        console.log('🔧 API: Portal response status:', res.status);
+        console.log('🔧 API: Portal response status text:', res.statusText);
+        console.log('🔧 API: Portal response headers:', Object.fromEntries(res.headers.entries()));
+
         if (!res.ok) {
-            throw new Error("Failed to create portal session");
+            const errorText = await res.text();
+            console.error('🔧 API: Portal error response body:', errorText);
+            throw new Error(`Failed to create portal session: ${res.status} ${res.statusText}`);
         }
 
-        return res.json();
+        // Try to get response text first to debug
+        const responseText = await res.text();
+        console.log('🔧 API: Portal raw response text:', responseText);
+        
+        let responseData: CreatePortalSessionResponse;
+        try {
+            responseData = JSON.parse(responseText);
+            console.log('🔧 API: Portal parsed response data:', responseData);
+        } catch (parseError) {
+            console.error('🔧 API: Failed to parse portal response as JSON:', parseError);
+            throw new Error('Invalid JSON response from portal session API');
+        }
+        
+        // Map the backend response format to the expected frontend format
+        return { url: responseData.portalUrl };
     },
 
     async getSubscriptionStatus(): Promise<SubscriptionStatus> {
@@ -350,6 +375,10 @@ const api = {
         if (!token) {
             throw new Error("User not authenticated");
         }
+
+        console.log('🔧 API: Getting subscription status');
+        console.log('🔧 API: Authentication token present:', !!token);
+        console.log('🔧 API: Making request to:', `${getApiUrl()}/auth/subscription`);
 
         const res = await fetch(`${getApiUrl()}/auth/subscription`, {
             method: "GET",
@@ -359,11 +388,29 @@ const api = {
             },
         });
 
+        console.log('🔧 API: Subscription response status:', res.status);
+        console.log('🔧 API: Subscription response status text:', res.statusText);
+        console.log('🔧 API: Subscription response headers:', Object.fromEntries(res.headers.entries()));
+
         if (!res.ok) {
-            throw new Error("Failed to get subscription status");
+            const errorText = await res.text();
+            console.error('🔧 API: Subscription error response body:', errorText);
+            throw new Error(`Failed to get subscription status: ${res.status} ${res.statusText}`);
         }
 
-        const data = await res.json();
+        // Try to get response text first to debug
+        const responseText = await res.text();
+        console.log('🔧 API: Subscription raw response text:', responseText);
+        
+        let data;
+        try {
+            data = JSON.parse(responseText);
+            console.log('🔧 API: Subscription parsed response data:', data);
+        } catch (parseError) {
+            console.error('🔧 API: Failed to parse subscription response as JSON:', parseError);
+            throw new Error('Invalid JSON response from subscription API');
+        }
+        
         console.log('🔧 Raw subscription API response:', data);
         
         // Map the API response to the expected SubscriptionStatus format
