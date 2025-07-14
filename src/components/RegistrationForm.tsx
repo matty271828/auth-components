@@ -8,10 +8,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 import { auth } from "@/lib/auth"
 import type { User } from "@/lib/types"
 import { validatePassword, isPasswordValid } from "@/lib/utils"
 import { PasswordStrengthIndicator } from "./ui/password-strength-indicator"
+import OAuthButtons from "./OAuthButtons"
 
 interface RegistrationFormProps {
   onSuccess?: (user: User) => void
@@ -30,6 +32,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [staySignedIn, setStaySignedIn] = useState(true) // Default to true for better UX
 
   // Calculate password strength whenever password changes
   const passwordStrength = useMemo(() => {
@@ -201,6 +204,22 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
               </Button>
             </div>
           </div>
+
+          {/* Stay signed in checkbox */}
+          <div className="flex items-center space-x-2 mb-4">
+            <Checkbox
+              id="staySignedIn"
+              checked={staySignedIn}
+              onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
+              disabled={isLoading}
+            />
+            <Label 
+              htmlFor="staySignedIn" 
+              className="text-xs sm:text-sm text-muted-foreground cursor-pointer"
+            >
+              Stay signed in
+            </Label>
+          </div>
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6">
@@ -218,6 +237,8 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
               "Create Account"
             )}
           </Button>
+
+          <OAuthButtons type="signup" onError={setError} onSuccess={onSuccess} />
           <p className="text-xs sm:text-sm text-center text-muted-foreground">
             Already have an account?{" "}
             <button 

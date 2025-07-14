@@ -457,6 +457,21 @@ class AuthClient {
   }
 
   /**
+   * Initiate OAuth flow
+   */
+  async initiateOAuth(provider: "google" | "github"): Promise<void> {
+    console.log(`🔧 Initiating OAuth flow for ${provider}`)
+
+    try {
+      const { url } = await api.initiateOAuth(provider)
+      window.location.href = url
+    } catch (error) {
+      console.error(`Failed to initiate OAuth with ${provider}:`, error)
+      throw error
+    }
+  }
+
+  /**
    * Logout user
    */
   async logout(): Promise<void> {
@@ -475,6 +490,12 @@ class AuthClient {
     } else {
       await api.logout();
     }
+
+    // Clear all auth data from localStorage
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_session');
+    localStorage.removeItem('auth_stay_signed_in');
 
     // Stop session monitoring
     this.stopSessionMonitoring();

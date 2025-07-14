@@ -281,6 +281,21 @@ const api = {
         }
     },
 
+    async initiateOAuth(provider: string): Promise<{ url: string }> {
+        const response = await fetch(`${getApiUrl()}/auth/oauth/initiate?provider=${provider}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to initiate OAuth: ${response.status} ${response.statusText}`);
+        }
+
+        return await response.json();
+    },
+
     // Stripe API calls
     async createCheckoutSession(
         request: CreateCheckoutSessionRequest

@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { auth } from "@/lib/auth"
 import type { User } from "@/lib/types"
+import OAuthButtons from "./OAuthButtons"
 
 interface LoginFormProps {
   onSuccess?: (user: User) => void
@@ -247,7 +248,7 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
           </div>
 
           {/* Stay signed in checkbox */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 mb-4">
             <Checkbox
               id="staySignedIn"
               checked={staySignedIn}
@@ -262,11 +263,7 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
             </Label>
           </div>
           
-          {staySignedIn && (
-            <p className="text-xs text-muted-foreground">
-              You'll remain signed in until you manually sign out or your session expires.
-            </p>
-          )}
+
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6">
@@ -280,6 +277,8 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
               "Sign In"
             )}
           </Button>
+
+          <OAuthButtons type="login" onError={setError} onSuccess={onSuccess} />
           <div className="w-full flex justify-between items-center text-xs sm:text-sm">
             <p className="text-muted-foreground">
               Don't have an account?{" "}
