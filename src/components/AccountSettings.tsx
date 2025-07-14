@@ -26,6 +26,8 @@ interface PlanFeature {
 
 interface UserDetails {
   email: string
+  firstName: string
+  lastName: string
   memberSince: string
 }
 
@@ -34,10 +36,10 @@ interface AccountSettingsProps {
   standardPlanFeatures?: PlanFeature[]
   freePlanFeatures?: PlanFeature[]
   className?: string
-  successRedirectUrl: string
-  cancelRedirectUrl: string
-  returnRedirectUrl: string
-  priceId: string
+  successRedirectUrl?: string
+  cancelRedirectUrl?: string
+  returnRedirectUrl?: string
+  priceId?: string
 }
 
 export default function AccountSettings({
@@ -69,7 +71,7 @@ export default function AccountSettings({
   useEffect(() => {
     if (!priceId) {
       console.warn("Stripe price ID is not configured. Stripe integration will be disabled.");
-      setError("Stripe integration is not properly configured. Please contact support.");
+      // Don't set error in mock mode, just log a warning
     }
   }, [priceId])
 
@@ -177,7 +179,7 @@ export default function AccountSettings({
   const handleUpgrade = async () => {
     // Validate priceId before proceeding
     if (!priceId) {
-      setError("Stripe integration is not properly configured. Please contact support.")
+      setError("Stripe integration is not available in demo mode.")
       return
     }
 
@@ -188,8 +190,8 @@ export default function AccountSettings({
     try {
       // Create checkout session with proper redirect URLs
       const response = await api.createCheckoutSession({
-        successUrl: successRedirectUrl!,
-        cancelUrl: cancelRedirectUrl!,
+        successUrl: successRedirectUrl || window.location.href,
+        cancelUrl: cancelRedirectUrl || window.location.href,
         priceId: priceId
       })
       
@@ -216,7 +218,7 @@ export default function AccountSettings({
     
     try {
       // Validate returnRedirectUrl and provide fallback
-      const returnUrl = returnRedirectUrl || window.location.origin
+      const returnUrl = returnRedirectUrl || window.location.href
       
       // Create portal session with return URL
       const response = await api.createPortalSession({
