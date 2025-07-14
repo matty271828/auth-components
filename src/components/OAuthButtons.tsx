@@ -47,7 +47,7 @@ export default function OAuthButtons({ type, onError, onSuccess }: OAuthButtonsP
   const buttonText = type === 'login' ? 'Sign in with Google' : 'Sign up with Google';
 
   return (
-    <Button variant="outline" type="button" onClick={() => handleOAuth("google")}>
+    <Button variant="outline" type="button" className="w-full h-9 sm:h-11 text-sm sm:text-base" onClick={() => handleOAuth("google")}>
         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
           <path
             fill="#4285F4"
