@@ -37,7 +37,7 @@ export default function OAuthButtons({ type, onError, onSuccess, staySignedIn }:
         onSuccess?.(mockUser);
       } else {
         // Real OAuth flow
-        await auth.initiateOAuth(provider, staySignedIn);
+        await auth.initiateOAuth(provider, staySignedIn, window.location.origin + '/auth/callback');
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : `Failed to ${type === 'login' ? 'sign in' : 'sign up'} with ${provider}`

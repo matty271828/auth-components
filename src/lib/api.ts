@@ -281,8 +281,8 @@ const api = {
         }
     },
 
-    async initiateOAuth(provider: string, staySignedIn: boolean = true): Promise<{ url: string }> {
-        const response = await fetch(`${getApiUrl()}/auth/oauth/initiate?provider=${provider}&staySignedIn=${staySignedIn}`, {
+    async initiateOAuth(provider: string, staySignedIn: boolean = true, frontendRedirectUrl: string): Promise<{ url: string }> {
+        const response = await fetch(`${getApiUrl()}/auth/oauth/initiate?provider=${provider}&staySignedIn=${staySignedIn}&frontendRedirectUrl=${encodeURIComponent(frontendRedirectUrl)}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
