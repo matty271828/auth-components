@@ -278,7 +278,7 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
             )}
           </Button>
 
-          <OAuthButtons type="login" onError={setError} onSuccess={onSuccess} />
+          <OAuthButtons type="login" onError={setError} onSuccess={onSuccess} staySignedIn={staySignedIn} />
           <div className="w-full flex justify-between items-center text-xs sm:text-sm">
             <p className="text-muted-foreground">
               Don't have an account?{" "}

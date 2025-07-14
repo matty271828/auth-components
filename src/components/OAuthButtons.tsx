@@ -7,9 +7,10 @@ interface OAuthButtonsProps {
   type: 'login' | 'signup'
   onError?: (error: string) => void
   onSuccess?: (user: any) => void
+  staySignedIn?: boolean // Add this prop
 }
 
-export default function OAuthButtons({ type, onError, onSuccess }: OAuthButtonsProps) {
+export default function OAuthButtons({ type, onError, onSuccess, staySignedIn }: OAuthButtonsProps) {
   const handleOAuth = async (provider: "google") => {
     try {
       // In mock mode, simulate OAuth login
@@ -36,7 +37,7 @@ export default function OAuthButtons({ type, onError, onSuccess }: OAuthButtonsP
         onSuccess?.(mockUser);
       } else {
         // Real OAuth flow
-        await auth.initiateOAuth(provider);
+        await auth.initiateOAuth(provider, staySignedIn);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : `Failed to ${type === 'login' ? 'sign in' : 'sign up'} with ${provider}`

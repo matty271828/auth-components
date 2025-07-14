@@ -459,11 +459,11 @@ class AuthClient {
   /**
    * Initiate OAuth flow
    */
-  async initiateOAuth(provider: "google" | "github"): Promise<void> {
-    console.log(`🔧 Initiating OAuth flow for ${provider}`)
+  async initiateOAuth(provider: "google" | "github", staySignedIn: boolean = true): Promise<void> {
+    console.log(`🔧 Initiating OAuth flow for ${provider} with staySignedIn: ${staySignedIn}`)
 
     try {
-      const { url } = await api.initiateOAuth(provider)
+      const { url } = await api.initiateOAuth(provider, staySignedIn)
       window.location.href = url
     } catch (error) {
       console.error(`Failed to initiate OAuth with ${provider}:`, error)

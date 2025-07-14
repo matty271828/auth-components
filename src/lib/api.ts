@@ -281,8 +281,8 @@ const api = {
         }
     },
 
-    async initiateOAuth(provider: string): Promise<{ url: string }> {
-        const response = await fetch(`${getApiUrl()}/auth/oauth/initiate?provider=${provider}`, {
+    async initiateOAuth(provider: string, staySignedIn: boolean = true): Promise<{ url: string }> {
+        const response = await fetch(`${getApiUrl()}/auth/oauth/initiate?provider=${provider}&staySignedIn=${staySignedIn}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

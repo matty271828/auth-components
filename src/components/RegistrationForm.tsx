@@ -238,7 +238,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
             )}
           </Button>
 
-          <OAuthButtons type="signup" onError={setError} onSuccess={onSuccess} />
+          <OAuthButtons type="signup" onError={setError} onSuccess={onSuccess} staySignedIn={staySignedIn} />
           <p className="text-xs sm:text-sm text-center text-muted-foreground">
             Already have an account?{" "}
             <button 

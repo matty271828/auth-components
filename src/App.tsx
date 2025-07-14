@@ -8,11 +8,12 @@ import PasswordResetForm from "./components/PasswordResetForm"
 import ChangePasswordForm from "./components/ChangePasswordForm"
 import EmailVerificationForm from "./components/EmailVerificationForm"
 import AccountSettings from "./components/AccountSettings"
+import AuthCallback from "./components/AuthCallback"
 import { auth } from "./lib/auth"
 import { useAuth } from "./lib/useAuth"
 import type { User as UserType } from "./lib/auth"
 
-type AuthView = "login" | "register" | "forgotPassword" | "changePassword" | "verifyEmail" | "accountSettings"
+type AuthView = "login" | "register" | "forgotPassword" | "changePassword" | "verifyEmail" | "accountSettings" | "authCallback"
 
 function App() {
   const [view, setView] = useState<AuthView>("login")
@@ -21,6 +22,14 @@ function App() {
   const [isMockMode, setIsMockMode] = useState(false)
 
   const { user, logout, isLoading } = useAuth()
+
+  // Check for OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('token')) {
+      setView('authCallback');
+    }
+  }, []);
 
   // Check if we're in mock mode
   useEffect(() => {
@@ -252,6 +261,12 @@ function App() {
             onError={handleError}
             onSwitchToLogin={() => handleViewChange("login")}
             token={"your-verification-token-here"}
+          />
+        )}
+        {view === "authCallback" && (
+          <AuthCallback 
+            onSuccess={() => setView('login')}
+            onError={handleError} 
           />
         )}
       </div>
