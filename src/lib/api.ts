@@ -62,7 +62,22 @@ const makeAuthenticatedRequest = async <T>(
         throw new Error(`Request failed: ${response.status} ${response.statusText}`);
     }
     
-    return await response.json();
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+    } else {
+        // Handle non-JSON responses (like "OK")
+        const text = await response.text();
+        console.warn('Received non-JSON response:', text);
+        
+        // If it's a simple success response, return a success object
+        if (text.trim() === 'OK' || text.trim() === 'Success') {
+            return { success: true } as T;
+        }
+        
+        throw new Error(`Unexpected response format: ${text}`);
+    }
 };
 
 const api = {
@@ -89,6 +104,16 @@ const api = {
             return data.user;
         }
 
+        // Handle case where backend returns simple success response
+        if (data.success && !data.session) {
+            // Try to get user data from localStorage or make another request
+            const existingUser = localStorage.getItem('auth_user');
+            if (existingUser) {
+                return JSON.parse(existingUser);
+            }
+            throw new Error('Login successful but no user data received');
+        }
+
         throw new Error(data.error || 'Login failed');
     },
 
@@ -111,6 +136,16 @@ const api = {
             localStorage.setItem('auth_session', JSON.stringify(data.session));
             
             return data.user;
+        }
+
+        // Handle case where backend returns simple success response
+        if (data.success && !data.session) {
+            // Try to get user data from localStorage or make another request
+            const existingUser = localStorage.getItem('auth_user');
+            if (existingUser) {
+                return JSON.parse(existingUser);
+            }
+            throw new Error('Signup successful but no user data received');
         }
 
         throw new Error(data.error || 'Signup failed');
