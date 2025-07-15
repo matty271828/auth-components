@@ -42,36 +42,7 @@ const getCSRFToken = async (): Promise<string> => {
     }
 };
 
-// Helper function to make unauthenticated requests (for login/signup)
-const makeUnauthenticatedRequest = async <T>(
-    url: string, 
-    options: RequestInit
-): Promise<T> => {
-    const response = await fetch(url, options);
-    
-    if (!response.ok) {
-        throw new Error(`Request failed: ${response.status} ${response.statusText}`);
-    }
-    
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-        return await response.json();
-    } else {
-        // Handle non-JSON responses (like "OK")
-        const text = await response.text();
-        console.warn('Received non-JSON response:', text);
-        
-        // If it's a simple success response, return a success object
-        if (text.trim() === 'OK' || text.trim() === 'Success') {
-            return { success: true } as T;
-        }
-        
-        throw new Error(`Unexpected response format: ${text}`);
-    }
-};
-
-// Helper function to make authenticated requests (for operations that require authentication)
+// Helper function to make authenticated requests
 const makeAuthenticatedRequest = async <T>(
     url: string, 
     options: RequestInit
@@ -112,7 +83,7 @@ const makeAuthenticatedRequest = async <T>(
 const api = {
     // Auth API calls
     async login(loginData: LoginData, staySignedIn: boolean = true): Promise<User> {
-        const data: AuthResponse = await makeUnauthenticatedRequest<AuthResponse>(
+        const data: AuthResponse = await makeAuthenticatedRequest<AuthResponse>(
             `${getApiUrl()}/auth/login`,
             {
                 method: 'POST',
@@ -147,7 +118,7 @@ const api = {
     },
 
     async signup(signupData: SignupData): Promise<User> {
-        const data: AuthResponse = await makeUnauthenticatedRequest<AuthResponse>(
+        const data: AuthResponse = await makeAuthenticatedRequest<AuthResponse>(
             `${getApiUrl()}/auth/signup`,
             {
                 method: 'POST',
