@@ -257,33 +257,30 @@ export default function AccountSettings({
   const StatusIcon = statusConfig?.icon || AlertCircle
 
   return (
-    <div className="bg-stone-50 min-h-screen">
-      <div className={`w-full max-w-5xl mx-auto ${className || ""}`}> 
+    <div className="bg-stone-50">
+      <div className={`w-full max-w-4xl mx-auto ${className || ""}`}> 
         {/* Account Details Card */}
-        <Card className="m-4 sm:m-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-              <User className="h-5 w-5" />
+        <Card className="m-1 sm:m-2">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+              <User className="h-3 w-3 sm:h-4 sm:w-4" />
               Account Details
             </CardTitle>
-            <CardDescription>
-              Your account information
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <CardContent className="space-y-2">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Mail className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">Email</p>
-                  <p className="text-sm text-muted-foreground break-all">{user.email}</p>
+                  <p className="text-xs sm:text-sm font-medium">Email</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground break-all">{user.email}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <div className="flex items-center gap-2">
+                <Calendar className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-medium">Member Since</p>
-                  <p className="text-sm text-muted-foreground">{formatDate(user.memberSince)}</p>
+                  <p className="text-xs sm:text-sm font-medium">Member Since</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{formatDate(user.memberSince)}</p>
                 </div>
               </div>
             </div>
@@ -292,65 +289,62 @@ export default function AccountSettings({
 
         {/* Subscribe Section */}
         {subscription?.currentPlan === "free" && (
-          <Card className="m-4 sm:m-6">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-                <Crown className="h-5 w-5 text-yellow-500" />
+          <Card className="m-1 sm:m-2">
+            <CardHeader className="pb-1">
+              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                <Crown className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
                 Become a Member
               </CardTitle>
-              <CardDescription>
-                Get unlimited problem tracking and advanced features
-              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-3">
               {/* Price Display */}
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-slate-900">
+                <div className="text-xl sm:text-2xl font-bold text-slate-900">
                   {formatPrice(12.99, "GBP")}
-                  <span className="text-lg sm:text-xl font-normal text-muted-foreground">/month</span>
+                  <span className="text-sm sm:text-base font-normal text-muted-foreground">/month</span>
                 </div>
               </div>
 
-              {/* Features List */}
-              <div className="space-y-3">
-                <h4 className="font-semibold text-slate-900">What you'll get:</h4>
-                <ul className="space-y-2">
+              {/* Features List - Compact Grid */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-slate-900 text-xs sm:text-sm">What you'll get:</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                   {standardPlanFeatures.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3 text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span>{feature.name}</span>
-                    </li>
+                    <div key={index} className="flex items-start gap-1 text-xs sm:text-sm">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span className="leading-tight">{feature.name}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
 
               {/* Upgrade Button */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Button 
                   onClick={handleUpgrade}
                   disabled={isLoading || !priceId}
-                  className="w-full h-12 text-base font-semibold"
+                  className="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold"
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                       Processing...
                     </>
                   ) : !priceId ? (
                     <>
-                      <AlertCircle className="mr-2 h-4 w-4" />
+                      <AlertCircle className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Stripe Not Configured
                     </>
                   ) : (
                     <>
-                      <Crown className="mr-2 h-4 w-4" />
+                      <Crown className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Upgrade Now
-                      <ArrowUpRight className="ml-2 h-4 w-4" />
+                      <ArrowUpRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                     </>
                   )}
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  {!priceId ? "Stripe integration is not configured. Please contact support." : "Secure payment via Stripe"}
+                  {!priceId ? "Stripe integration is not configured." : "Secure payment via Stripe"}
                 </p>
               </div>
             </CardContent>
@@ -359,31 +353,28 @@ export default function AccountSettings({
 
         {/* Subscription Management Section */}
         {subscription?.currentPlan === "standard" && (
-          <Card className="m-4 sm:m-6">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-                <Settings className="h-5 w-5" />
+          <Card className="m-1 sm:m-2">
+            <CardHeader className="pb-1">
+              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
                 Subscription Management
               </CardTitle>
-              <CardDescription>
-                Manage your subscription and billing details
-              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-3">
               {/* Current Plan Info */}
-              <div className="space-y-3">
+              <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Current Plan:</span>
-                  <Badge variant="secondary" className="bg-yellow-50 border-yellow-200 text-yellow-700">
-                    <Crown className="h-3 w-3 mr-1" />
+                  <span className="text-xs sm:text-sm font-medium">Current Plan:</span>
+                  <Badge variant="secondary" className="bg-yellow-50 border-yellow-200 text-yellow-700 text-xs">
+                    <Crown className="h-2 w-2 sm:h-3 sm:w-3 mr-1" />
                     Standard
                   </Badge>
                 </div>
                 
                 {subscription.nextBillingDate && (
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Next Billing Date:</span>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-xs sm:text-sm font-medium">Next Billing Date:</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">
                       {formatDate(subscription.nextBillingDate)}
                     </span>
                   </div>
@@ -391,23 +382,23 @@ export default function AccountSettings({
               </div>
 
               {/* Manage Subscription Button */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Button 
                   onClick={handleManageSubscription}
                   disabled={isLoading}
                   variant="outline"
-                  className="w-full"
+                  className="w-full h-8 sm:h-9 text-xs sm:text-sm"
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                       Loading...
                     </>
                   ) : (
                     <>
-                      <Settings className="mr-2 h-4 w-4" />
+                      <Settings className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Manage Subscription
-                      <ArrowUpRight className="ml-2 h-4 w-4" />
+                      <ArrowUpRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                     </>
                   )}
                 </Button>
