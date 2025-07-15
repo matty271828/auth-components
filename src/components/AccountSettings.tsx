@@ -300,7 +300,7 @@ export default function AccountSettings({
               {/* Price Display */}
               <div className="text-center">
                 <div className="text-xl sm:text-2xl font-bold text-slate-900">
-                  {formatPrice(2.99, "USD")}
+                  {formatPrice(3.99, "USD")}
                   <span className="text-sm sm:text-base font-normal text-muted-foreground">/month</span>
                 </div>
               </div>
