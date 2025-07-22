@@ -67,6 +67,7 @@ export default function AccountSettings({
   lifetimePriceId = import.meta.env.VITE_STRIPE_LIFETIME_PRICE_ID
 }: AccountSettingsProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [loadingPlan, setLoadingPlan] = useState<'monthly' | 'lifetime' | null>(null)
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -154,9 +155,9 @@ export default function AccountSettings({
       case "lifetime":
         return {
           icon: Crown,
-          color: "text-purple-500",
-          bgColor: "bg-purple-50",
-          borderColor: "border-purple-200",
+          color: "text-blue-500",
+          bgColor: "bg-blue-50",
+          borderColor: "border-blue-200",
           text: "Lifetime Membership"
         }
       case "cancelled":
@@ -181,9 +182,9 @@ export default function AccountSettings({
         if (subscription.currentPlan === "lifetime") {
           return {
             icon: Crown,
-            color: "text-purple-500",
-            bgColor: "bg-purple-50",
-            borderColor: "border-purple-200",
+            color: "text-blue-500",
+            bgColor: "bg-blue-50",
+            borderColor: "border-blue-200",
             text: "Lifetime"
           }
         }
@@ -197,7 +198,7 @@ export default function AccountSettings({
     }
   }
 
-  const handleUpgrade = async (selectedPriceId?: string) => {
+  const handleUpgrade = async (planType: 'monthly' | 'lifetime', selectedPriceId?: string) => {
     // Use the provided priceId or fall back to the legacy priceId prop
     const finalPriceId = selectedPriceId || priceId
     
@@ -208,6 +209,7 @@ export default function AccountSettings({
     }
 
     setIsLoading(true)
+    setLoadingPlan(planType)
     setError(null)
     setSuccessMessage(null)
     
@@ -232,11 +234,12 @@ export default function AccountSettings({
       setError("Failed to start upgrade process. Please try again.")
     } finally {
       setIsLoading(false)
+      setLoadingPlan(null)
     }
   }
 
-  const handleMonthlyUpgrade = () => handleUpgrade(monthlyPriceId)
-  const handleLifetimeUpgrade = () => handleUpgrade(lifetimePriceId)
+  const handleMonthlyUpgrade = () => handleUpgrade('monthly', monthlyPriceId)
+  const handleLifetimeUpgrade = () => handleUpgrade('lifetime', lifetimePriceId)
 
   const handleManageSubscription = async () => {
     setIsLoading(true)
@@ -284,10 +287,9 @@ export default function AccountSettings({
   const StatusIcon = statusConfig?.icon || AlertCircle
 
   return (
-    <div className="bg-stone-50">
-      <div className={`w-full max-w-4xl mx-auto ${className || ""}`}> 
-        {/* Account Details Card */}
-        <Card className="m-1 sm:m-2">
+    <div className={`w-full max-w-6xl mx-auto ${className || ""}`}> 
+      {/* Account Details Card */}
+      <Card className="m-1 sm:m-2">
           <CardHeader className="pb-1">
             <CardTitle className="text-sm sm:text-base flex items-center gap-2">
               <User className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -316,16 +318,16 @@ export default function AccountSettings({
 
         {/* Subscribe Section */}
         {subscription?.currentPlan === "free" && (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {/* Monthly Plan Card */}
-            <Card className="m-1 sm:m-2">
+            <Card className="m-1 sm:m-2 flex flex-col">
               <CardHeader className="pb-1">
                 <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                   <Crown className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
                   Monthly Membership
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 flex-1 flex flex-col">
                 {/* Price Display */}
                 <div className="text-center">
                   <div className="text-xl sm:text-2xl font-bold text-slate-900">
@@ -335,7 +337,7 @@ export default function AccountSettings({
                 </div>
 
                 {/* Features List - Compact Grid */}
-                <div className="space-y-2">
+                <div className="space-y-2 flex-1">
                   <h4 className="font-semibold text-slate-900 text-xs sm:text-sm">What you'll get:</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                     {standardPlanFeatures.map((feature, index) => (
@@ -348,13 +350,13 @@ export default function AccountSettings({
                 </div>
 
                 {/* Upgrade Button */}
-                <div className="space-y-1">
+                <div className="space-y-1 mt-4">
                   <Button 
                     onClick={handleMonthlyUpgrade}
                     disabled={isLoading || !monthlyPriceId}
                     className="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold"
                   >
-                    {isLoading ? (
+                    {loadingPlan === 'monthly' ? (
                       <>
                         <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                         Processing...
@@ -380,17 +382,17 @@ export default function AccountSettings({
             </Card>
 
             {/* Lifetime Plan Card */}
-            <Card className="m-1 sm:m-2 border-purple-200 bg-purple-50/30">
+            <Card className="m-1 sm:m-2 border-blue-200 bg-blue-50/30 flex flex-col">
               <CardHeader className="pb-1">
                 <CardTitle className="text-sm sm:text-base flex items-center gap-2">
-                  <Crown className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500" />
+                  <Crown className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
                   Lifetime Membership
-                  <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs ml-auto">
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs ml-auto">
                     Best Value
                   </Badge>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 flex-1 flex flex-col">
                 {/* Price Display */}
                 <div className="text-center">
                   <div className="text-xl sm:text-2xl font-bold text-slate-900">
@@ -398,39 +400,37 @@ export default function AccountSettings({
                     <span className="text-sm sm:text-base font-normal text-muted-foreground"> one-time</span>
                   </div>
                   <p className="text-xs text-green-600 font-medium mt-1">
-                    Save $38.88 vs monthly billing
+                    Save $38.88 vs monthly billing over 12 months
                   </p>
                 </div>
 
                 {/* Features List - Compact Grid */}
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-slate-900 text-xs sm:text-sm">Everything included:</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                    {standardPlanFeatures.map((feature, index) => (
-                      <div key={index} className="flex items-start gap-1 text-xs sm:text-sm">
-                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="leading-tight">{feature.name}</span>
-                      </div>
-                    ))}
+                <div className="space-y-2 flex-1">
+                  <h4 className="font-semibold text-slate-900 text-xs sm:text-sm">What you'll get:</h4>
+                  <div className="space-y-1">
                     <div className="flex items-start gap-1 text-xs sm:text-sm">
-                      <CheckCircle className="h-3 w-3 text-purple-500 flex-shrink-0 mt-0.5" />
-                      <span className="leading-tight font-medium">Lifetime access</span>
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span className="leading-tight">Everything in standard plan</span>
                     </div>
                     <div className="flex items-start gap-1 text-xs sm:text-sm">
-                      <CheckCircle className="h-3 w-3 text-purple-500 flex-shrink-0 mt-0.5" />
-                      <span className="leading-tight font-medium">No recurring payments</span>
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span className="leading-tight font-medium">No subscription required</span>
+                    </div>
+                    <div className="flex items-start gap-1 text-xs sm:text-sm">
+                      <CheckCircle className="h-3 w-3 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="leading-tight font-medium">Save $38.88 vs monthly billing</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Upgrade Button */}
-                <div className="space-y-1">
+                <div className="space-y-1 mt-4">
                   <Button 
                     onClick={handleLifetimeUpgrade}
                     disabled={isLoading || !lifetimePriceId}
-                    className="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-purple-600 hover:bg-purple-700"
+                    className="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-blue-600 hover:bg-blue-700"
                   >
-                    {isLoading ? (
+                    {loadingPlan === 'lifetime' ? (
                       <>
                         <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                         Processing...
@@ -475,7 +475,7 @@ export default function AccountSettings({
                     variant="secondary" 
                     className={`text-xs ${
                       subscription?.currentPlan === "lifetime" 
-                        ? "bg-purple-50 border-purple-200 text-purple-700" 
+                        ? "bg-blue-50 border-blue-200 text-blue-700" 
                         : "bg-yellow-50 border-yellow-200 text-yellow-700"
                     }`}
                   >
@@ -549,6 +549,5 @@ export default function AccountSettings({
           </Card>
         )}
       </div>
-    </div>
   )
 } 
