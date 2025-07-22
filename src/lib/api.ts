@@ -411,28 +411,42 @@ const api = {
 
         const data = await res.json();
         
-        // Map the API response to the expected SubscriptionStatus format
-        if (data.success && data.subscription) {
-            const subscription = data.subscription;
-            
-            // Map "active" status to "standard" for frontend compatibility
-            const status: "free" | "standard" | "cancelled" = 
-                subscription.status === "active" ? "standard" : 
-                subscription.status === "cancelled" ? "cancelled" : "free";
-            
-            // Determine current plan based on status
-            const currentPlan: "free" | "standard" = status === "free" ? "free" : "standard";
-            
-            const result: SubscriptionStatus = {
-                currentPlan,
-                status,
-                nextBillingDate: subscription.currentPeriodEnd,
-                // Note: amount, currency, interval are not provided by the current API
-                // These would need to be added to the backend response if needed
-            };
-            
-            return result;
-        }
+                    // Map the API response to the expected SubscriptionStatus format
+            if (data.success && data.subscription) {
+                const subscription = data.subscription;
+                
+                // Map status values to frontend format
+                let status: "free" | "standard" | "lifetime" | "cancelled";
+                let currentPlan: "free" | "standard" | "lifetime";
+                
+                switch (subscription.status) {
+                    case "active":
+                        status = "standard";
+                        currentPlan = "standard";
+                        break;
+                    case "lifetime":
+                        status = "lifetime";
+                        currentPlan = "lifetime";
+                        break;
+                    case "cancelled":
+                        status = "cancelled";
+                        currentPlan = "standard"; // Assume they had standard before cancelling
+                        break;
+                    default:
+                        status = "free";
+                        currentPlan = "free";
+                }
+                
+                const result: SubscriptionStatus = {
+                    currentPlan,
+                    status,
+                    nextBillingDate: subscription.currentPeriodEnd,
+                    // Note: amount, currency, interval are not provided by the current API
+                    // These would need to be added to the backend response if needed
+                };
+                
+                return result;
+            }
         
         // Fallback for unexpected response format
         return {

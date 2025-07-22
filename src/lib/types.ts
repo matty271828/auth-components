@@ -51,10 +51,10 @@ export interface CreatePortalSessionResponse {
 }
 
 export interface SubscriptionStatus {
-    currentPlan: "free" | "standard";
-    status: "free" | "standard" | "cancelled";
+    currentPlan: "free" | "standard" | "lifetime";
+    status: "free" | "standard" | "lifetime" | "cancelled";
     nextBillingDate?: string;
     amount?: number;
     currency?: string;
-    interval?: "month" | "year";
+    interval?: "month" | "year" | "lifetime";
 }

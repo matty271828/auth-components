@@ -316,12 +316,16 @@ export default function AuthDemo() {
           <AccountSettings
             user={{
               email: "john.doe@example.com",
+              firstName: "John",
+              lastName: "Doe",
               memberSince: "2024-01-15"
             }}
             successRedirectUrl={`${getApiUrl()}?status=success`}
             cancelRedirectUrl={`${getApiUrl()}?status=cancelled`}
             returnRedirectUrl={getApiUrl()}
             priceId={import.meta.env.VITE_STRIPE_PRICE_ID || 'fallback_price_id'}
+            monthlyPriceId={import.meta.env.VITE_STRIPE_MONTHLY_PRICE_ID}
+            lifetimePriceId={import.meta.env.VITE_STRIPE_LIFETIME_PRICE_ID}
           />
         )}
       </div>
