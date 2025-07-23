@@ -412,7 +412,7 @@ export default function AccountSettings({
                 {/* Price Display */}
                 <div className="text-center">
                   <div className="text-xl sm:text-2xl font-bold text-slate-900">
-                    {formatPrice(100, "USD")}
+                    {formatPrice(99, "USD")}
                     <span className="text-sm sm:text-base font-normal text-muted-foreground"> one-time</span>
                   </div>
                   <p className="text-xs text-green-600 font-medium mt-1">
