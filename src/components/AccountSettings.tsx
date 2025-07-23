@@ -19,6 +19,10 @@ import {
 import api from "@/lib/api"
 import type { SubscriptionStatus } from "@/lib/types"
 
+// Feature flag for early adopter messaging
+// This can be moved to a separate feature flags file if needed
+const EARLY_ADOPTER_MESSAGING_ENABLED = true
+
 interface PlanFeature {
   name: string
   description?: string
@@ -47,16 +51,16 @@ interface AccountSettingsProps {
 export default function AccountSettings({
   user,
   standardPlanFeatures: standardPlanFeatures = [
-    { name: "Track Unlimited Problems (vs 5 on free)" },
-    { name: "Build a Complete Study Portfolio" },
-    { name: "Focus on Learning, Not Management" },
-    { name: "Master All Problem Patterns" },
-    { name: "Advanced SM-2 Spaced Repetition" }
+    { name: EARLY_ADOPTER_MESSAGING_ENABLED ? "Lock in current pricing permanently" : "Track Unlimited Problems (vs 5 on free)" },
+    { name: EARLY_ADOPTER_MESSAGING_ENABLED ? "Support platform development" : "Build a Complete Study Portfolio" },
+    { name: EARLY_ADOPTER_MESSAGING_ENABLED ? "Get priority access to new features" : "Focus on Learning, Not Management" },
+    { name: EARLY_ADOPTER_MESSAGING_ENABLED ? "Help shape the future of LeetRepeat" : "Master All Problem Patterns" },
+    { name: EARLY_ADOPTER_MESSAGING_ENABLED ? "Early adopter community access" : "Advanced SM-2 Spaced Repetition" }
   ],
   freePlanFeatures = [
-    { name: "Track up to 5 problems" },
-    { name: "Basic spaced repetition algorithm" },
-    { name: "Standard support" }
+    { name: EARLY_ADOPTER_MESSAGING_ENABLED ? "Unlimited problem tracking" : "Track up to 5 problems" },
+    { name: EARLY_ADOPTER_MESSAGING_ENABLED ? "Full SM-2 algorithm" : "Basic spaced repetition algorithm" },
+    { name: EARLY_ADOPTER_MESSAGING_ENABLED ? "Community support" : "Standard support" }
   ],
   className,
   successRedirectUrl,
@@ -324,7 +328,12 @@ export default function AccountSettings({
               <CardHeader className="pb-1">
                 <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                   <Crown className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
-                  Monthly Membership
+                  {EARLY_ADOPTER_MESSAGING_ENABLED ? "Early Adopter Monthly Plan" : "Monthly Membership"}
+                  {EARLY_ADOPTER_MESSAGING_ENABLED && (
+                    <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
+                      Lock in Price
+                    </Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 flex-1 flex flex-col">
@@ -334,11 +343,18 @@ export default function AccountSettings({
                     {formatPrice(3.99, "USD")}
                     <span className="text-sm sm:text-base font-normal text-muted-foreground">/month</span>
                   </div>
+                  {EARLY_ADOPTER_MESSAGING_ENABLED && (
+                    <p className="text-xs text-green-600 font-medium mt-1">
+                      Lock in this price permanently
+                    </p>
+                  )}
                 </div>
 
                 {/* Features List - Compact Grid */}
                 <div className="space-y-2 flex-1">
-                  <h4 className="font-semibold text-slate-900 text-xs sm:text-sm">What you'll get:</h4>
+                  <h4 className="font-semibold text-slate-900 text-xs sm:text-sm">
+                    {EARLY_ADOPTER_MESSAGING_ENABLED ? "Early adopter benefits:" : "What you'll get:"}
+                  </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                     {standardPlanFeatures.map((feature, index) => (
                       <div key={index} className="flex items-start gap-1 text-xs sm:text-sm">
@@ -386,9 +402,9 @@ export default function AccountSettings({
               <CardHeader className="pb-1">
                 <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                   <Crown className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
-                  Lifetime Membership
+                  {EARLY_ADOPTER_MESSAGING_ENABLED ? "Early Adopter Lifetime Plan" : "Lifetime Membership"}
                   <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs ml-auto">
-                    Best Value
+                    {EARLY_ADOPTER_MESSAGING_ENABLED ? "Limited Time" : "Best Value"}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -396,17 +412,22 @@ export default function AccountSettings({
                 {/* Price Display */}
                 <div className="text-center">
                   <div className="text-xl sm:text-2xl font-bold text-slate-900">
-                    {formatPrice(99, "USD")}
+                    {formatPrice(100, "USD")}
                     <span className="text-sm sm:text-base font-normal text-muted-foreground"> one-time</span>
                   </div>
                   <p className="text-xs text-green-600 font-medium mt-1">
-                    Save $38.88 vs monthly billing over 12 months
+                    {EARLY_ADOPTER_MESSAGING_ENABLED 
+                      ? "Lock in lifetime access at early adopter price"
+                      : "Save $38.88 vs monthly billing over 12 months"
+                    }
                   </p>
                 </div>
 
                 {/* Features List - Compact Grid */}
                 <div className="space-y-2 flex-1">
-                  <h4 className="font-semibold text-slate-900 text-xs sm:text-sm">What you'll get:</h4>
+                  <h4 className="font-semibold text-slate-900 text-xs sm:text-sm">
+                    {EARLY_ADOPTER_MESSAGING_ENABLED ? "Lifetime benefits:" : "What you'll get:"}
+                  </h4>
                   <div className="space-y-1">
                     <div className="flex items-start gap-1 text-xs sm:text-sm">
                       <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0 mt-0.5" />
@@ -418,7 +439,12 @@ export default function AccountSettings({
                     </div>
                     <div className="flex items-start gap-1 text-xs sm:text-sm">
                       <CheckCircle className="h-3 w-3 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="leading-tight font-medium">Save $38.88 vs monthly billing</span>
+                      <span className="leading-tight font-medium">
+                        {EARLY_ADOPTER_MESSAGING_ENABLED 
+                          ? "Lock in early adopter pricing permanently"
+                          : "Save $38.88 vs monthly billing"
+                        }
+                      </span>
                     </div>
                   </div>
                 </div>
