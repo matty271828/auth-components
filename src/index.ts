@@ -16,7 +16,7 @@ export type {
 } from './lib/auth'
 
 // Utility functions and types
-export { validatePassword, isPasswordValid, cn } from './lib/utils'
+export { validatePassword, isPasswordValid, isPasswordMinimallyValid, cn } from './lib/utils'
 export type { PasswordStrength, PasswordRequirement } from './lib/utils'
 
 // UI Components

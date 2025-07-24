@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useMemo } from "react"
-import { validatePassword, isPasswordValid } from "@/lib/utils"
+import { validatePassword, isPasswordValid, isPasswordMinimallyValid } from "@/lib/utils"
 import { PasswordStrengthIndicator } from "./ui/password-strength-indicator"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -45,8 +45,8 @@ export default function ChangePasswordForm({ onSuccess, onError, onSwitchToLogin
       return
     }
 
-    if (!isPasswordValid(newPassword)) {
-      setError("Password does not meet all requirements")
+    if (!isPasswordMinimallyValid(newPassword)) {
+      setError("Password does not meet minimum requirements (8 characters + 2 complexity requirements)")
       return
     }
 
@@ -173,7 +173,7 @@ export default function ChangePasswordForm({ onSuccess, onError, onSwitchToLogin
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6">
-          <Button type="submit" className="w-full h-9 sm:h-11 text-sm sm:text-base" disabled={isLoading || !isPasswordValid(newPassword)}>
+          <Button type="submit" className="w-full h-9 sm:h-11 text-sm sm:text-base" disabled={isLoading || !isPasswordMinimallyValid(newPassword)}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />

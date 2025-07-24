@@ -2,7 +2,7 @@
  * Authentication utilities for connecting React components to the auth service
  */
 
-import { isPasswordValid } from './utils';
+import { isPasswordValid, isPasswordMinimallyValid } from './utils';
 import api from './api';
 import type { User, Session, AuthResponse, LoginData, SignupData } from './types';
 
@@ -421,8 +421,8 @@ class AuthClient {
         throw new Error('All fields are required');
       }
       
-      if (!isPasswordValid(signupData.password)) {
-        throw new Error('Password does not meet all requirements');
+      if (!isPasswordMinimallyValid(signupData.password)) {
+        throw new Error('Password does not meet minimum requirements (8 characters + 2 complexity requirements)');
       }
 
       const user = this.generateMockUser(signupData);

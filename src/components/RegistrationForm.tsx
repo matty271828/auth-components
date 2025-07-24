@@ -11,7 +11,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { auth } from "@/lib/auth"
 import type { User } from "@/lib/types"
-import { validatePassword, isPasswordValid } from "@/lib/utils"
+import { validatePassword, isPasswordValid, isPasswordMinimallyValid } from "@/lib/utils"
 import { PasswordStrengthIndicator } from "./ui/password-strength-indicator"
 import OAuthButtons from "./OAuthButtons"
 
@@ -47,8 +47,8 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
       return
     }
 
-    if (!isPasswordValid(password)) {
-      setError("Password does not meet all requirements")
+    if (!isPasswordMinimallyValid(password)) {
+      setError("Password does not meet minimum requirements (8 characters + 2 complexity requirements)")
       return
     }
 
@@ -165,7 +165,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={12}
+                minLength={8}
                 disabled={isLoading}
                 className="h-9 sm:h-11 text-base sm:text-base pr-10 sm:pr-12"
               />
@@ -239,7 +239,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
           <Button 
             type="submit" 
             className="w-full h-9 sm:h-11 text-sm sm:text-base" 
-            disabled={isLoading || !isPasswordValid(password)}
+            disabled={isLoading || !isPasswordMinimallyValid(password)}
           >
             {isLoading ? (
               <>

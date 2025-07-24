@@ -170,3 +170,23 @@ export function isPasswordValid(password: string): boolean {
   const strength = validatePassword(password);
   return strength.requirements.every(req => req.met);
 }
+
+/**
+ * Check if password meets minimum requirements for registration
+ * Minimum: 8 characters + 2 out of 4 complexity requirements (uppercase, lowercase, numbers, special)
+ */
+export function isPasswordMinimallyValid(password: string): boolean {
+  if (password.length < 8) {
+    return false;
+  }
+
+  const complexityRequirements = [
+    /[A-Z]/.test(password), // uppercase
+    /[a-z]/.test(password), // lowercase
+    /\d/.test(password),    // numbers
+    /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password) // special characters
+  ];
+
+  const metComplexityRequirements = complexityRequirements.filter(Boolean).length;
+  return metComplexityRequirements >= 2;
+}
