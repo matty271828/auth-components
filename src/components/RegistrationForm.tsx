@@ -94,6 +94,19 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
             </div>
           )}
           
+          {/* SSO Buttons - Moved above form for better visibility */}
+          <div className="space-y-3">
+            <OAuthButtons type="signup" onError={setError} onSuccess={onSuccess} staySignedIn={staySignedIn} />
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs sm:text-sm">
+                <span className="bg-white px-2 text-muted-foreground">Or continue with email</span>
+              </div>
+            </div>
+          </div>
+          
           {/* Single column on mobile, two columns on larger screens */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
             <div className="space-y-1">
@@ -238,7 +251,6 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
             )}
           </Button>
 
-          <OAuthButtons type="signup" onError={setError} onSuccess={onSuccess} staySignedIn={staySignedIn} />
           <p className="text-xs sm:text-sm text-center text-muted-foreground">
             Already have an account?{" "}
             <button 

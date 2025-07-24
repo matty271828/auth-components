@@ -204,6 +204,19 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
             </div>
           )}
           
+          {/* SSO Buttons - Moved above form for better visibility */}
+          <div className="space-y-3">
+            <OAuthButtons type="login" onError={setError} onSuccess={onSuccess} staySignedIn={staySignedIn} />
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs sm:text-sm">
+                <span className="bg-white px-2 text-muted-foreground">Or continue with email</span>
+              </div>
+            </div>
+          </div>
+          
           <div className="space-y-1">
             <Label htmlFor="email" className="text-xs sm:text-sm lg:text-base">Email</Label>
             <Input 
@@ -278,7 +291,6 @@ export default function LoginForm({ onSuccess, onError, redirectUrl, onSwitchToR
             )}
           </Button>
 
-          <OAuthButtons type="login" onError={setError} onSuccess={onSuccess} staySignedIn={staySignedIn} />
           <div className="w-full flex justify-between items-center text-xs sm:text-sm">
             <p className="text-muted-foreground">
               Don't have an account?{" "}
