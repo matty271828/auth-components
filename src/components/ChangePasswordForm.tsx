@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useMemo } from "react"
-import { validatePassword, isPasswordValid, isPasswordMinimallyValid } from "@/lib/utils"
+import { validatePassword } from "@/lib/utils"
 import { PasswordStrengthIndicator } from "./ui/password-strength-indicator"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -36,7 +36,6 @@ export default function ChangePasswordForm({ onSuccess, onError, onSwitchToLogin
   const isFormValid = useMemo(() => {
     return newPassword && 
            confirmPassword && 
-           isPasswordMinimallyValid(newPassword) && 
            newPassword === confirmPassword
   }, [newPassword, confirmPassword])
 
@@ -53,10 +52,7 @@ export default function ChangePasswordForm({ onSuccess, onError, onSwitchToLogin
       return
     }
 
-    if (!isPasswordMinimallyValid(newPassword)) {
-      setError("Password does not meet minimum requirements (8 characters + 2 complexity requirements)")
-      return
-    }
+
 
     if (!token) {
       setError("Reset token is required")
