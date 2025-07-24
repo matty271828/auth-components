@@ -32,6 +32,14 @@ export default function ChangePasswordForm({ onSuccess, onError, onSwitchToLogin
     return validatePassword(newPassword)
   }, [newPassword])
 
+  // Check if form is ready for submission
+  const isFormValid = useMemo(() => {
+    return newPassword && 
+           confirmPassword && 
+           isPasswordMinimallyValid(newPassword) && 
+           newPassword === confirmPassword
+  }, [newPassword, confirmPassword])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -173,7 +181,7 @@ export default function ChangePasswordForm({ onSuccess, onError, onSwitchToLogin
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-2 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6">
-          <Button type="submit" className="w-full h-9 sm:h-11 text-sm sm:text-base" disabled={isLoading || !isPasswordMinimallyValid(newPassword)}>
+          <Button type="submit" className="w-full h-9 sm:h-11 text-sm sm:text-base" disabled={isLoading || !isFormValid}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />

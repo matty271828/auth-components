@@ -39,6 +39,17 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
     return validatePassword(password)
   }, [password])
 
+  // Check if form is ready for submission
+  const isFormValid = useMemo(() => {
+    return firstName.trim() && 
+           lastName.trim() && 
+           email.trim() && 
+           password && 
+           confirmPassword && 
+           isPasswordMinimallyValid(password) && 
+           password === confirmPassword
+  }, [firstName, lastName, email, password, confirmPassword])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -239,7 +250,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
           <Button 
             type="submit" 
             className="w-full h-9 sm:h-11 text-sm sm:text-base" 
-            disabled={isLoading || !isPasswordMinimallyValid(password)}
+            disabled={isLoading || !isFormValid}
           >
             {isLoading ? (
               <>
