@@ -41,13 +41,8 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
 
   // Check if form is ready for submission
   const isFormValid = useMemo(() => {
-    return firstName.trim() && 
-           lastName.trim() && 
-           email.trim() && 
-           password && 
-           confirmPassword && 
-           password === confirmPassword
-  }, [firstName, lastName, email, password, confirmPassword])
+    return password && confirmPassword && password === confirmPassword
+  }, [password, confirmPassword])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -192,7 +187,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
             {/* Ultra-compact password strength indicator on mobile */}
             {password && (
               <div className="mt-1 sm:mt-3 p-1.5 sm:p-3 bg-gray-50 rounded-md border">
-                <PasswordStrengthIndicator strength={passwordStrength} compact={true} />
+                <PasswordStrengthIndicator strength={passwordStrength} compact={true} showRequirements={false} />
               </div>
             )}
           </div>
