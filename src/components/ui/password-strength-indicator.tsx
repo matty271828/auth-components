@@ -5,24 +5,31 @@ interface PasswordStrengthIndicatorProps {
   strength: PasswordStrength
   showRequirements?: boolean
   compact?: boolean
+  isEmpty?: boolean
+  showLabel?: boolean
 }
 
 export function PasswordStrengthIndicator({ 
   strength, 
   showRequirements = true,
-  compact = true
+  compact = true,
+  isEmpty = false,
+  showLabel = true
 }: PasswordStrengthIndicatorProps) {
+
+  // Show empty state when no password is entered
+  if (isEmpty) {
+    return (
+      <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="h-2 rounded-full bg-gray-200" style={{ width: '0%' }} />
+      </div>
+    )
+  }
 
   if (!showRequirements) {
     return (
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <span className="text-xs sm:text-sm font-medium">Password Strength</span>
-          <span className={`text-xs sm:text-sm font-semibold ${strength.color}`}>
-            {strength.label}
-          </span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className="flex items-center space-x-3">
+        <div className="flex-1 bg-gray-200 rounded-full h-2">
           <div 
             className={`h-2 rounded-full transition-all duration-300 ${
               strength.score <= 1 ? 'bg-red-500' :
@@ -34,6 +41,11 @@ export function PasswordStrengthIndicator({
             style={{ width: `${(strength.score / 5) * 100}%` }}
           />
         </div>
+        {showLabel && (
+          <span className={`text-xs sm:text-sm font-semibold whitespace-nowrap ${strength.color}`}>
+            {strength.label}
+          </span>
+        )}
       </div>
     )
   }
@@ -46,7 +58,6 @@ export function PasswordStrengthIndicator({
       <div className="space-y-2">
         {/* Compact strength bar with count */}
         <div className="flex justify-between items-center">
-          <span className="text-xs sm:text-sm font-medium">Password Strength</span>
           <div className="flex items-center space-x-2">
             <span className={`text-xs sm:text-sm font-semibold ${strength.color}`}>
               {strength.label}
@@ -80,7 +91,6 @@ export function PasswordStrengthIndicator({
       {/* Strength bar */}
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <span className="text-xs sm:text-sm font-medium">Password Strength</span>
           <span className={`text-xs sm:text-sm font-semibold ${strength.color}`}>
             {strength.label}
           </span>

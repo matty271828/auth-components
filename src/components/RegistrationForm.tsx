@@ -24,14 +24,12 @@ interface RegistrationFormProps {
 
 export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSwitchToLogin }: RegistrationFormProps) {
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
   const [staySignedIn, setStaySignedIn] = useState(true) // Default to true for better UX
 
   // Calculate password strength whenever password changes
@@ -41,21 +39,14 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
 
   // Check if form is ready for submission
   const isFormValid = useMemo(() => {
-    return password && confirmPassword && password === confirmPassword
-  }, [password, confirmPassword])
+    return password && password.length >= 8
+  }, [password])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+    if (!firstName || !lastName || !email || !password) {
       setError("Please fill in all fields")
-      return
-    }
-
-
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match")
       return
     }
 
@@ -83,7 +74,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
   }
 
   return (
-    <Card className="w-full max-w-sm sm:max-w-md mx-auto border-none shadow-none">
+    <Card className="w-full max-w-sm sm:max-w-md mx-auto bg-white border border-gray-200 shadow-lg rounded-lg">
       <CardHeader className="space-y-1 px-2 sm:px-6 pt-3 sm:pt-6">
         <CardTitle className="text-base sm:text-xl lg:text-2xl font-bold text-center">Create Account</CardTitle>
         <CardDescription className="text-center text-xs sm:text-sm lg:text-base">Enter your details to create your account</CardDescription>
@@ -184,41 +175,19 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
               </Button>
             </div>
             
-            {/* Ultra-compact password strength indicator on mobile */}
-            {password && (
-              <div className="mt-1 sm:mt-3 p-1.5 sm:p-3 bg-gray-50 rounded-md border">
-                <PasswordStrengthIndicator strength={passwordStrength} compact={true} showRequirements={false} />
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-1 mb-2 sm:mb-4">
-            <Label htmlFor="confirmPassword" className="text-xs sm:text-sm lg:text-base">Confirm Password</Label>
-            <div className="relative">
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                className="h-9 sm:h-11 text-base sm:text-base pr-10 sm:pr-12"
+            {/* Password strength indicator - always show with empty bar when no password */}
+            <div className="mt-1 sm:mt-3">
+              <PasswordStrengthIndicator 
+                strength={passwordStrength} 
+                compact={true} 
+                showRequirements={false} 
+                isEmpty={!password}
+                showLabel={true}
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-2 py-1 sm:px-3 sm:py-2 hover:bg-transparent min-h-0"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                disabled={isLoading}
-              >
-                {showConfirmPassword ? <EyeOff className="h-3 w-3 sm:h-4 sm:w-4" /> : <Eye className="h-3 w-3 sm:h-4 sm:w-4" />}
-                <span className="sr-only">{showConfirmPassword ? "Hide password" : "Show password"}</span>
-              </Button>
             </div>
           </div>
+
+
 
           {/* Stay signed in checkbox */}
           <div className="flex items-center space-x-2 mb-4">
