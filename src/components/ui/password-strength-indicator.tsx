@@ -32,11 +32,12 @@ export function PasswordStrengthIndicator({
         <div className="flex-1 bg-gray-200 rounded-full h-2">
           <div 
             className={`h-2 rounded-full transition-all duration-300 ${
-              strength.score <= 1 ? 'bg-red-500' :
-              strength.score === 2 ? 'bg-orange-500' :
-              strength.score === 3 ? 'bg-yellow-500' :
-              strength.score === 4 ? 'bg-blue-500' :
-              'bg-green-500'
+              strength.score === 0 ? 'bg-red-500' :
+              strength.score === 1 ? 'bg-orange-500' :
+              strength.score === 2 ? 'bg-yellow-500' :
+              strength.score === 3 ? 'bg-blue-500' :
+              strength.score === 4 ? 'bg-green-500' :
+              'bg-emerald-500'
             }`}
             style={{ width: `${(strength.score / 5) * 100}%` }}
           />

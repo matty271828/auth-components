@@ -39,7 +39,7 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
 
   // Check if form is ready for submission
   const isFormValid = useMemo(() => {
-    return password && password.length >= 8
+    return password && password.length >= 1
   }, [password])
 
   const handleSubmit = async (e: React.FormEvent) => {

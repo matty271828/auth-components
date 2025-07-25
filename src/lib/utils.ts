@@ -126,10 +126,17 @@ export function validatePassword(password: string): PasswordStrength {
     req.met = req.test(password);
   });
 
-  // Calculate strength score (0-5)
+  // Calculate strength score (0-6) - adding new very weak category
   const metRequirements = requirements.filter(req => req.met).length;
   const totalRequirements = requirements.length;
-  const score = Math.floor((metRequirements / totalRequirements) * 5);
+  let score = Math.floor((metRequirements / totalRequirements) * 5);
+  
+  // Special handling for very short passwords
+  if (password.length === 1) {
+    score = 0; // Very Weak
+  } else if (password.length <= 3) {
+    score = Math.max(0, score - 1); // Reduce score for very short passwords
+  }
 
   // Determine strength label and color
   let label: string;
