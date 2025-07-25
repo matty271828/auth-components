@@ -158,7 +158,6 @@ export default function RegistrationForm({ onSuccess, onError, redirectUrl, onSw
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={8}
                 disabled={isLoading}
                 className="h-9 sm:h-11 text-base sm:text-base pr-10 sm:pr-12"
               />
