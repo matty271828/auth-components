@@ -420,7 +420,8 @@ const api = {
                 let currentPlan: "free" | "standard" | "lifetime";
                 
                 switch (subscription.status) {
-                    case "active":
+                    case "standard":
+                    case "past_due":
                         status = "standard";
                         currentPlan = "standard";
                         break;
@@ -428,9 +429,9 @@ const api = {
                         status = "lifetime";
                         currentPlan = "lifetime";
                         break;
-                    case "cancelled":
+                    case "canceled":
                         status = "cancelled";
-                        currentPlan = "standard"; // Assume they had standard before cancelling
+                        currentPlan = "free";
                         break;
                     default:
                         status = "free";
