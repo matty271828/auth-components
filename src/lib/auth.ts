@@ -315,14 +315,33 @@ class AuthClient {
   }
 
   /**
-   * Check if we should use mock mode
+   * Check if we should use mock mode.
+   *
+   * Active on localhost (any build mode) and on Cloudflare Pages *preview*
+   * deployments. Cloudflare Pages URL structure:
+   *   <hash-or-branch>.<project>.pages.dev  →  4+ segments  (preview → mock)
+   *   <project>.pages.dev                   →  3 segments   (production → real auth)
+   *
+   * The previous check gated on `this.isDevelopment` (import.meta.env.DEV),
+   * which is false on Cloudflare Pages (production build). That meant every
+   * preview tried the real auth service and was blocked by CORS.
    */
   private shouldUseMock(): boolean {
-    // In development, use mock mode if we're on localhost
-    return this.isDevelopment && (
-      window.location.hostname.includes('localhost') ||
-      window.location.hostname.includes('127.0.0.1')
-    );
+    if (typeof window === 'undefined') return false;
+    const hostname = window.location.hostname;
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return true;
+    }
+
+    // Cloudflare Pages preview URLs: <hash-or-branch>.<project>.pages.dev
+    // Production Pages URLs:          <project>.pages.dev
+    // Distinguish by segment count: previews have 4+, production has 3.
+    if (hostname.endsWith('.pages.dev')) {
+      return hostname.split('.').length >= 4;
+    }
+
+    return false;
   }
 
   /**
@@ -712,4 +731,4 @@ class AuthClient {
 export const auth = new AuthClient();
 
 // Re-export types for convenience
-export type { User, Session, AuthResponse, LoginData, SignupData }; 
+export type { User, Session, AuthResponse, LoginData, SignupData };
