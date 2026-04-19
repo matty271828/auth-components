@@ -315,13 +315,20 @@ class AuthClient {
   }
 
   /**
-   * Check if we should use mock mode
+   * Check if we should use mock mode.
+   *
+   * Mock mode is active when running on localhost (any build mode) or on a
+   * Cloudflare Pages preview URL (*.pages.dev). Preview deployments are
+   * production builds so import.meta.env.DEV is false there — the old check
+   * `this.isDevelopment && localhost` never activated, causing the app to
+   * call the real auth service which rejects *.pages.dev origins via CORS.
    */
   private shouldUseMock(): boolean {
-    // In development, use mock mode if we're on localhost
-    return this.isDevelopment && (
-      window.location.hostname.includes('localhost') ||
-      window.location.hostname.includes('127.0.0.1')
+    const hostname = window.location.hostname;
+    return (
+      hostname.includes('localhost') ||
+      hostname.includes('127.0.0.1') ||
+      hostname.endsWith('.pages.dev')
     );
   }
 
@@ -712,4 +719,4 @@ class AuthClient {
 export const auth = new AuthClient();
 
 // Re-export types for convenience
-export type { User, Session, AuthResponse, LoginData, SignupData }; 
+export type { User, Session, AuthResponse, LoginData, SignupData };
