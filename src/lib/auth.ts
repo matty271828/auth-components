@@ -318,9 +318,9 @@ class AuthClient {
    * Check if we should use mock mode.
    *
    * Active on localhost (any build mode) and on Cloudflare Pages *preview*
-   * deployments. Preview URLs have an extra subdomain prefix:
-   *   <hash>.<project>.pages.dev  →  4+ hostname segments  (preview → mock)
-   *   <project>.pages.dev         →  3 hostname segments   (production → real auth)
+   * deployments. Cloudflare Pages URL structure:
+   *   <hash-or-branch>.<project>.pages.dev  →  4+ segments  (preview → mock)
+   *   <project>.pages.dev                   →  3 segments   (production → real auth)
    *
    * The previous check gated on `this.isDevelopment` (import.meta.env.DEV),
    * which is false on Cloudflare Pages (production build). That meant every
@@ -330,7 +330,7 @@ class AuthClient {
     if (typeof window === 'undefined') return false;
     const hostname = window.location.hostname;
 
-    if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return true;
     }
 
