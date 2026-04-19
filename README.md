@@ -248,7 +248,6 @@ The components automatically connect to the auth service running on your domain 
 - `GET /auth/session` - Session validation
 - `GET /auth/csrf-token` - CSRF token generation
 - `GET /auth/health` - Service health check
-- `POST /auth/graphql` - GraphQL endpoint for data operations
 
 ### CSRF Protection
 
