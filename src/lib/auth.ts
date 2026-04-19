@@ -324,6 +324,7 @@ class AuthClient {
    * call the real auth service which rejects *.pages.dev origins via CORS.
    */
   private shouldUseMock(): boolean {
+    if (typeof window === 'undefined') return false;
     const hostname = window.location.hostname;
     return (
       hostname.includes('localhost') ||
