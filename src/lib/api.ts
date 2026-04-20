@@ -320,7 +320,7 @@ const api = {
         const response = await fetch(`${getApiUrl()}/auth/oauth/initiate?provider=${provider}&staySignedIn=${staySignedIn}&frontendRedirectUrl=${encodeURIComponent(frontendRedirectUrl)}`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
+                'Accept': 'application/json',
             },
         });
 
@@ -328,7 +328,21 @@ const api = {
             throw new Error(`Failed to initiate OAuth: ${response.status} ${response.statusText}`);
         }
 
-        return await response.json();
+        // Read as text first so a non-JSON body (e.g. plain "OK") produces a
+        // clear error instead of a cryptic "Unexpected token 'O'" SyntaxError.
+        const body = await response.text();
+        let data: { url?: string };
+        try {
+            data = JSON.parse(body);
+        } catch {
+            throw new Error(`OAuth initiate returned a non-JSON response: "${body.slice(0, 100)}"`);
+        }
+
+        if (!data.url) {
+            throw new Error('OAuth initiate response missing redirect url');
+        }
+
+        return { url: data.url };
     },
 
     // Stripe API calls
