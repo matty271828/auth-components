@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     react(), 
     tailwindcss(),
-    dts({ 
+    dts({
       insertTypesEntry: true,
       rollupTypes: false,
       include: ['src/**/*'],
@@ -18,6 +18,9 @@ export default defineConfig({
         'tsconfig*.json',
         '**/*.config.*',
         '**/*.d.ts',
+        '**/*.test.ts',
+        '**/*.test.tsx',
+        'src/test/**',
         'node_modules/**/*'
       ]
     })
