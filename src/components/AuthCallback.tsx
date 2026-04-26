@@ -11,7 +11,7 @@ interface AuthCallbackProps {
   onError: (error: string) => void;
 }
 
-export default function AuthCallback({}: AuthCallbackProps) {
+export default function AuthCallback({ onSuccess, onError }: AuthCallbackProps) {
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -63,8 +63,9 @@ export default function AuthCallback({}: AuthCallbackProps) {
 
           // Clear URL parameters
           window.history.replaceState({}, document.title, window.location.pathname);
-          
+
           setSuccess(true);
+          onSuccess();
           setTimeout(() => {
             window.location.href = '/';
           }, 1500);
@@ -79,12 +80,14 @@ export default function AuthCallback({}: AuthCallbackProps) {
         const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred during authentication';
         setError(errorMessage);
         setIsProcessing(false);
-        
+
         // Clear any partial data that might have been stored
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
         localStorage.removeItem('auth_session');
         localStorage.removeItem('auth_stay_signed_in');
+
+        onError(errorMessage);
       }
     };
 

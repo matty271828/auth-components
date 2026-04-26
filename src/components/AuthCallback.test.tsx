@@ -35,7 +35,8 @@ describe('AuthCallback', () => {
       '?token=abc&userId=1&email=a%40b.com&firstName=A&lastName=B&createdAt=2020-01-01'
     )
 
-    render(<AuthCallback onSuccess={vi.fn()} onError={vi.fn()} />)
+    const onSuccess = vi.fn()
+    render(<AuthCallback onSuccess={onSuccess} onError={vi.fn()} />)
 
     await vi.waitFor(() => {
       expect(localStorage.getItem('auth_token')).toBe('abc')
@@ -43,18 +44,22 @@ describe('AuthCallback', () => {
     const user = JSON.parse(localStorage.getItem('auth_user')!)
     expect(user.email).toBe('a@b.com')
     expect(user.firstName).toBe('A')
+    expect(onSuccess).toHaveBeenCalledTimes(1)
     vi.useRealTimers()
   })
 
-  it('shows error when no data found', async () => {
+  it('shows error and invokes onError when no data found', async () => {
     setSearchParams('')
     document.body.textContent = ''
-    render(<AuthCallback onSuccess={vi.fn()} onError={vi.fn()} />)
+    const onError = vi.fn()
+    render(<AuthCallback onSuccess={vi.fn()} onError={onError} />)
 
     await waitFor(() => {
       expect(screen.getByText(/authentication failed/i)).toBeInTheDocument()
     })
     expect(screen.getByText(/no valid authentication data/i)).toBeInTheDocument()
+    expect(onError).toHaveBeenCalledTimes(1)
+    expect(onError).toHaveBeenCalledWith(expect.stringMatching(/no valid authentication data/i))
   })
 
   it('clears storage on error', async () => {
