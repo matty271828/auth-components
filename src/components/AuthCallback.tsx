@@ -11,13 +11,6 @@ interface AuthCallbackProps {
   onError: (error: string) => void;
 }
 
-interface OAuthResponse {
-  success: boolean;
-  message: string;
-  user: User;
-  session: Session;
-}
-
 export default function AuthCallback({}: AuthCallbackProps) {
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +23,14 @@ export default function AuthCallback({}: AuthCallbackProps) {
         setError(null);
         setSuccess(false);
 
-        // Method 1: Try to get data from URL parameters (fallback)
+        // Read identity from the OAuth callback URL parameters. The previous
+        // implementation also had a fallback that parsed `document.body.textContent`
+        // as JSON and trusted whatever it found — that allowed a network-level
+        // attacker (MITM, compromised CDN edge, captive portal) to inject a
+        // session into localStorage by serving a valid-looking JSON body.
+        // Removed in favour of URL-only handling. See security audit CRIT-5.
+        // (CRIT-2: the URL-parameter path itself still needs to move to a
+        // server-set HttpOnly cookie + nonce; tracked separately.)
         const params = new URLSearchParams(window.location.search);
         const token = params.get('token');
         const userId = params.get('userId');
@@ -71,46 +71,7 @@ export default function AuthCallback({}: AuthCallbackProps) {
           return;
         }
 
-        // Method 2: Try to parse JSON response from page content
-        const responseText = document.body.textContent || '';
-        
-        if (responseText.trim()) {
-          try {
-            const oauthResponse: OAuthResponse = JSON.parse(responseText);
-            
-            // Validate the response structure
-            if (!oauthResponse.success) {
-              throw new Error(oauthResponse.message || 'OAuth authentication failed');
-            }
-
-            if (!oauthResponse.user || !oauthResponse.session) {
-              throw new Error('Incomplete authentication response - missing user or session data');
-            }
-
-            // Store the session data securely
-            const { user, session } = oauthResponse;
-            
-            localStorage.setItem('auth_token', session.token);
-            localStorage.setItem('auth_user', JSON.stringify(user));
-            localStorage.setItem('auth_session', JSON.stringify(session));
-            localStorage.setItem('auth_stay_signed_in', 'true');
-
-            // Clear the page content
-            document.body.innerHTML = '';
-            
-            setSuccess(true);
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 1500);
-            return;
-
-          } catch (parseError) {
-            console.error('Failed to parse OAuth response:', parseError);
-            // Continue to error handling
-          }
-        }
-
-        // If we get here, no valid data was found
+        // No valid URL-parameter session data — fail closed.
         throw new Error('No valid authentication data found. Please try signing in again.');
 
       } catch (err) {

@@ -66,4 +66,38 @@ describe('AuthCallback', () => {
     })
     expect(localStorage.getItem('auth_token')).toBeNull()
   })
+
+  // Regression: a previous fallback path read document.body.textContent,
+  // parsed it as JSON, and trusted whatever it found as a valid OAuth
+  // response — letting a network-level attacker (MITM, compromised CDN
+  // edge, captive portal) inject a session by serving a JSON body.
+  // See security audit CRIT-5 — the path is removed.
+  it('does NOT consume a JSON OAuth response from document.body.textContent', async () => {
+    setSearchParams('')
+    document.body.textContent = JSON.stringify({
+      success: true,
+      message: 'ok',
+      user: {
+        id: 'attacker',
+        email: 'attacker@evil.com',
+        firstName: 'Mal',
+        lastName: 'Lory',
+        createdAt: '2020-01-01',
+      },
+      session: {
+        id: 'session-evil',
+        token: 'attacker-token',
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      },
+    })
+
+    render(<AuthCallback onSuccess={vi.fn()} onError={vi.fn()} />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/authentication failed/i)).toBeInTheDocument()
+    })
+    expect(localStorage.getItem('auth_token')).toBeNull()
+    expect(localStorage.getItem('auth_user')).toBeNull()
+    expect(localStorage.getItem('auth_session')).toBeNull()
+  })
 })
