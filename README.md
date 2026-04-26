@@ -39,9 +39,11 @@ If you want to use this library directly from source during development:
 git submodule add <auth-components-repo-url> auth-components
 git submodule update --init --recursive
 
-# auth-components no longer ships node_modules. Install its dev
+# auth-components no longer ships node_modules. Install its
 # dependencies under the submodule path before building or testing.
-(cd auth-components && npm ci)
+cd auth-components
+npm ci
+cd ..
 ```
 
 #### 2. Import components directly from source:
@@ -62,7 +64,7 @@ git submodule update --remote auth-components
 # Or go into the submodule and pull manually
 cd auth-components
 git pull origin main
-npm ci   # refresh dev dependencies after pulling
+npm ci   # reinstall dependencies from package-lock.json after pulling
 cd ..
 git add auth-components
 git commit -m "Update auth-components submodule"
